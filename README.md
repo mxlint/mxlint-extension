@@ -1,6 +1,8 @@
 # Mendix CLI Extension for Mendix Studio Pro
 
-This is still early stage of development. Follow this project for future updates.
+While [mendix-cli](https://github.com/cinaq/mendix-cli) is designed for pipeline automation, this extension is designed to be used in Mendix Studio Pro. This extension gives you quicker feedback to avoid surprises when you are ready to deploy your app.
+
+> This is still early stage of development. Follow this project for future updates.
 
 ## Requirements
 
