@@ -6,10 +6,10 @@ This is still early stage of development. Follow this project for future updates
 
 ### OSX (MacOS)
 
-- Visual Studio Code
-- Mendix Studio Pro
-- dotNet core SDK vscode
-- C# dev kit VSCode extension
+- [Visual Studio Code](https://code.visualstudio.com/)
+- [Mendix Studio Pro](https://marketplace.mendix.com/link/studiopro)
+- [dotNet core SDK vscode](https://dot.net/core-sdk-vscode)
+- C# dev kit VSCode extension (inside of VSCode)
 
 ### Windows
 
