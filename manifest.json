@@ -1,1 +1,1 @@
-﻿{ "mx_extensions": [ "MyCompany.MyProject.DockablePaneExtension.dll" ] }
+﻿{ "mx_extensions": [ "com.cinaq.MendixCLI.LintingPaneExtension.dll" ] }

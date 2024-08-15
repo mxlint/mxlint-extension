@@ -1,9 +1,9 @@
 ﻿using Mendix.StudioPro.ExtensionsAPI.UI.DockablePane;
 using Mendix.StudioPro.ExtensionsAPI.UI.WebView;
 
-namespace MyCompany.MyProject.MendixExtension;
+namespace com.cinaq.MendixCLI.MendixExtension;
 
-public class MyDockablePaneExtensionWebViewModel(string homePage) : WebViewDockablePaneViewModel
+public class LintingPaneExtensionWebViewModel(string homePage) : WebViewDockablePaneViewModel
 {
     public override void InitWebView(IWebView webView) => webView.Address = new Uri(homePage);
 }

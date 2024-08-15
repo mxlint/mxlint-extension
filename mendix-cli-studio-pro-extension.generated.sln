@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyCompany.MyProject.DockablePaneExtension", "MyCompany.MyProject.DockablePaneExtension.csproj", "{D2C1EB51-5B16-4D2D-AFE0-A2B7FAA00780}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "com.cinaq.MendixCLI.LintingPaneExtension", "com.cinaq.MendixCLI.MendixCLIExtension.csproj", "{D2C1EB51-5B16-4D2D-AFE0-A2B7FAA00780}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
