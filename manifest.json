@@ -1,1 +1,1 @@
-﻿{ "mx_extensions": [ "com.cinaq.MendixCLI.LintingPaneExtension.dll" ] }
+﻿{ "mx_extensions": [ "com.cinaq.MendixCLI.MendixCLIExtension.dll" ] }

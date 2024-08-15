@@ -1,2 +1,3 @@
 bin/
 obj/
+resources/App/*.lock

@@ -5,6 +5,7 @@ using Mendix.StudioPro.ExtensionsAPI.UI.Services;
 namespace com.cinaq.MendixCLI.MendixExtension;
 
 [Export(typeof(MenuExtension))]
+[method: ImportingConstructor]
 public class MendixCLIMenuExtension(IDockingWindowService dockingWindowService, IMessageBoxService messageBoxService) : MenuExtension
 {
     public override IEnumerable<MenuViewModel> GetMenus()
