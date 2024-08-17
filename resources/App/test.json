@@ -1,0 +1,655 @@
+{
+  "XMLName": {
+    "Space": "",
+    "Local": ""
+  },
+  "Testsuites": [
+    {
+      "XMLName": {
+        "Space": "",
+        "Local": ""
+      },
+      "Name": "policies/001_project_settings/001_0001_anonymous_disabled.rego",
+      "Tests": 1,
+      "Failures": 0,
+      "Skipped": 0,
+      "Time": 0.001359542,
+      "Testcases": [
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/Security$ProjectSecurity.yaml",
+          "Time": 0.001359542,
+          "Failure": null,
+          "Skipped": null
+        }
+      ]
+    },
+    {
+      "XMLName": {
+        "Space": "",
+        "Local": ""
+      },
+      "Name": "policies/001_project_settings/001_0002_demo_users_disabled.rego",
+      "Tests": 1,
+      "Failures": 1,
+      "Skipped": 0,
+      "Time": 0.0010845,
+      "Testcases": [
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/Security$ProjectSecurity.yaml",
+          "Time": 0.0010845,
+          "Failure": {
+            "Message": "[HIGH, Security, 4098] Business apps should disable demo users",
+            "Type": "AssertionError",
+            "Data": ""
+          },
+          "Skipped": null
+        }
+      ]
+    },
+    {
+      "XMLName": {
+        "Space": "",
+        "Local": ""
+      },
+      "Name": "policies/001_project_settings/001_0003_security_checks.rego",
+      "Tests": 1,
+      "Failures": 1,
+      "Skipped": 0,
+      "Time": 0.001262458,
+      "Testcases": [
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/Security$ProjectSecurity.yaml",
+          "Time": 0.001262458,
+          "Failure": {
+            "Message": "[HIGH, Security, 4099] Security check is not set to Production in Project Security",
+            "Type": "AssertionError",
+            "Data": ""
+          },
+          "Skipped": null
+        }
+      ]
+    },
+    {
+      "XMLName": {
+        "Space": "",
+        "Local": ""
+      },
+      "Name": "policies/001_project_settings/001_0004_strong_password.rego",
+      "Tests": 1,
+      "Failures": 1,
+      "Skipped": 0,
+      "Time": 0.002638417,
+      "Testcases": [
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/Security$ProjectSecurity.yaml",
+          "Time": 0.002638417,
+          "Failure": {
+            "Message": "[HIGH, Security, 4100] Password must require symbols",
+            "Type": "AssertionError",
+            "Data": ""
+          },
+          "Skipped": null
+        }
+      ]
+    },
+    {
+      "XMLName": {
+        "Space": "",
+        "Local": ""
+      },
+      "Name": "policies/002_domain_model/002_0001_number_of_entities.rego",
+      "Tests": 8,
+      "Failures": 0,
+      "Skipped": 0,
+      "Time": 0.010110665999999999,
+      "Testcases": [
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/Administration/DomainModels$DomainModel.yaml",
+          "Time": 0.001462833,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/Atlas_Core/DomainModels$DomainModel.yaml",
+          "Time": 0.001079958,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/Atlas_Web_Content/DomainModels$DomainModel.yaml",
+          "Time": 0.00155575,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/DataWidgets/DomainModels$DomainModel.yaml",
+          "Time": 0.001070584,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/FeedbackModule/DomainModels$DomainModel.yaml",
+          "Time": 0.001068291,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/MyFirstModule/DomainModels$DomainModel.yaml",
+          "Time": 0.001357208,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/NanoflowCommons/DomainModels$DomainModel.yaml",
+          "Time": 0.001545084,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/WebActions/DomainModels$DomainModel.yaml",
+          "Time": 0.000970958,
+          "Failure": null,
+          "Skipped": null
+        }
+      ]
+    },
+    {
+      "XMLName": {
+        "Space": "",
+        "Local": ""
+      },
+      "Name": "policies/002_domain_model/002_0002_number_of_attributes.rego",
+      "Tests": 8,
+      "Failures": 0,
+      "Skipped": 0,
+      "Time": 0.011125791999999999,
+      "Testcases": [
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/Administration/DomainModels$DomainModel.yaml",
+          "Time": 0.002000875,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/Atlas_Core/DomainModels$DomainModel.yaml",
+          "Time": 0.001177834,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/Atlas_Web_Content/DomainModels$DomainModel.yaml",
+          "Time": 0.001301625,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/DataWidgets/DomainModels$DomainModel.yaml",
+          "Time": 0.00119825,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/FeedbackModule/DomainModels$DomainModel.yaml",
+          "Time": 0.00158325,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/MyFirstModule/DomainModels$DomainModel.yaml",
+          "Time": 0.001207,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/NanoflowCommons/DomainModels$DomainModel.yaml",
+          "Time": 0.001423875,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/WebActions/DomainModels$DomainModel.yaml",
+          "Time": 0.001233083,
+          "Failure": null,
+          "Skipped": null
+        }
+      ]
+    },
+    {
+      "XMLName": {
+        "Space": "",
+        "Local": ""
+      },
+      "Name": "policies/002_domain_model/002_0003_inherit_from_administration_account.rego",
+      "Tests": 8,
+      "Failures": 0,
+      "Skipped": 0,
+      "Time": 0.009099915,
+      "Testcases": [
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/Administration/DomainModels$DomainModel.yaml",
+          "Time": 0.001187333,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/Atlas_Core/DomainModels$DomainModel.yaml",
+          "Time": 0.00087475,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/Atlas_Web_Content/DomainModels$DomainModel.yaml",
+          "Time": 0.000884708,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/DataWidgets/DomainModels$DomainModel.yaml",
+          "Time": 0.001577792,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/FeedbackModule/DomainModels$DomainModel.yaml",
+          "Time": 0.001050875,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/MyFirstModule/DomainModels$DomainModel.yaml",
+          "Time": 0.000875916,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/NanoflowCommons/DomainModels$DomainModel.yaml",
+          "Time": 0.00106375,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/WebActions/DomainModels$DomainModel.yaml",
+          "Time": 0.001584791,
+          "Failure": null,
+          "Skipped": null
+        }
+      ]
+    },
+    {
+      "XMLName": {
+        "Space": "",
+        "Local": ""
+      },
+      "Name": "policies/002_domain_model/002_0004_inherit_from_non_system.rego",
+      "Tests": 8,
+      "Failures": 0,
+      "Skipped": 0,
+      "Time": 0.008892959,
+      "Testcases": [
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/Administration/DomainModels$DomainModel.yaml",
+          "Time": 0.001199208,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/Atlas_Core/DomainModels$DomainModel.yaml",
+          "Time": 0.000899125,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/Atlas_Web_Content/DomainModels$DomainModel.yaml",
+          "Time": 0.001032792,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/DataWidgets/DomainModels$DomainModel.yaml",
+          "Time": 0.001608375,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/FeedbackModule/DomainModels$DomainModel.yaml",
+          "Time": 0.0010835,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/MyFirstModule/DomainModels$DomainModel.yaml",
+          "Time": 0.000985084,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/NanoflowCommons/DomainModels$DomainModel.yaml",
+          "Time": 0.001097208,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/WebActions/DomainModels$DomainModel.yaml",
+          "Time": 0.000987667,
+          "Failure": null,
+          "Skipped": null
+        }
+      ]
+    },
+    {
+      "XMLName": {
+        "Space": "",
+        "Local": ""
+      },
+      "Name": "policies/002_domain_model/002_0005_avoid_system_entity_association.rego",
+      "Tests": 8,
+      "Failures": 0,
+      "Skipped": 0,
+      "Time": 0.008608457,
+      "Testcases": [
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/Administration/DomainModels$DomainModel.yaml",
+          "Time": 0.001249875,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/Atlas_Core/DomainModels$DomainModel.yaml",
+          "Time": 0.000965875,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/Atlas_Web_Content/DomainModels$DomainModel.yaml",
+          "Time": 0.00100025,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/DataWidgets/DomainModels$DomainModel.yaml",
+          "Time": 0.000912583,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/FeedbackModule/DomainModels$DomainModel.yaml",
+          "Time": 0.001465208,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/MyFirstModule/DomainModels$DomainModel.yaml",
+          "Time": 0.000994958,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/NanoflowCommons/DomainModels$DomainModel.yaml",
+          "Time": 0.001117,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/WebActions/DomainModels$DomainModel.yaml",
+          "Time": 0.000902708,
+          "Failure": null,
+          "Skipped": null
+        }
+      ]
+    },
+    {
+      "XMLName": {
+        "Space": "",
+        "Local": ""
+      },
+      "Name": "policies/003_modules/003_0001_number_of_modules.rego",
+      "Tests": 1,
+      "Failures": 0,
+      "Skipped": 0,
+      "Time": 0.002037625,
+      "Testcases": [
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/Metadata.yaml",
+          "Time": 0.002037625,
+          "Failure": null,
+          "Skipped": null
+        }
+      ]
+    },
+    {
+      "XMLName": {
+        "Space": "",
+        "Local": ""
+      },
+      "Name": "policies/004_pages/004_0001_inline_style_property_used.rego",
+      "Tests": 3,
+      "Failures": 0,
+      "Skipped": 0,
+      "Time": 0.923222083,
+      "Testcases": [
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/Administration/System Administration/ActiveSessions.Forms$Page.yaml",
+          "Time": 0.250000417,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/Administration/System Administration/RuntimeInstances.Forms$Page.yaml",
+          "Time": 0.266262541,
+          "Failure": null,
+          "Skipped": null
+        },
+        {
+          "XMLName": {
+            "Space": "",
+            "Local": ""
+          },
+          "Name": "modelsource/Administration/System Administration/ScheduledEvents.Forms$Page.yaml",
+          "Time": 0.406959125,
+          "Failure": null,
+          "Skipped": null
+        }
+      ]
+    },
+    {
+      "XMLName": {
+        "Space": "",
+        "Local": ""
+      },
+      "Name": "policies/005_microflows/005_0001_empty_string_check_not_complete.rego",
+      "Tests": 0,
+      "Failures": 0,
+      "Skipped": 0,
+      "Time": 0,
+      "Testcases": []
+    }
+  ]
+}
