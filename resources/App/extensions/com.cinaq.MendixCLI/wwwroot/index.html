@@ -1,0 +1,41 @@
+<html lang="en">
+  <head>
+    <title>To Do List</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style type="text/tailwindcss">
+      @tailwind base;
+      @tailwind components;
+      @tailwind utilities;
+
+      @layer base {
+        body {
+          @apply m-6;
+        }
+        h1 {
+          @apply text-2xl mt-6;
+        }
+        h2 {
+          @apply text-xl mt-6;
+        }
+        input[type=checkbox] + label {
+          @apply ml-2;
+        }
+        input[type=checkbox]:checked + label {
+          text-decoration: line-through;
+        }
+        button {
+          @apply text-blue-600 italic
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div><label for="addToDoInput">Add to do:</label> <input id="addToDoInput" type="text" placeholder="To do text" /> <button id="addToDoButton">Add</button></div>
+    <h1>To Do</h1>
+    <div id="todo"></div>
+    <h1>Done</h1>
+    <div id="done"></div>
+    <button id="clearDoneButton">Clear</button>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
