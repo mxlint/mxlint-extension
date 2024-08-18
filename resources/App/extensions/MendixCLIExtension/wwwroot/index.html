@@ -1,0 +1,74 @@
+<html lang="en">
+
+<head>
+    <title>Linting</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="pico-v2.0.6.css">
+    <link rel="stylesheet" href="pico.colors-v2.0.6.css">
+    <link rel="stylesheet" href="custom.css">
+</head>
+
+<body>
+    <main class="container-fluid">
+        <article>
+            <header>Result: <span class="pico-background-orange label"> Fail </span></header>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pass</th>
+                        <th>Skip</th>
+                        <th>Fail</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="pico-background-lime text-large">1</td>
+                        <td class="pico-background-slate">3</td>
+                        <td class="pico-background-orange">2</td>
+                        <td class="pico-background-sand">6</td>
+                    </tr>
+                </tbody>
+            </table>
+        </article>
+
+        <article>
+            <header>Policies</header>
+            <table class="striped">
+                <thead>
+                    <tr>
+                        <th>Policy</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="policies">
+                    <tr>
+                        <td>Policy 1</td>
+                        <td>Passed</td>
+                        <td>open</td>
+                    </tr>
+                    <tr>
+                        <td>Policy 2</td>
+                        <td>Failed</td>
+                        <td>open</td>
+                    </tr>
+                    <tr>
+                        <td>Policy 3</td>
+                        <td>Skipped</td>
+                        <td>open</td>
+                    </tr>
+                </tbody>
+
+            </table>
+        </article>
+        <article>
+            <header>Debug</header>
+            <button onclick="window.location.reload()">Reload</button>
+            <button id="LintButton">Lint</button>
+        </article>
+    </main>
+    <script type="module" src="./main.js"></script>
+</body>
+
+</html>

@@ -4,7 +4,7 @@ using Mendix.StudioPro.ExtensionsAPI.Model;
 using System.IO;
 
 
-namespace com.cinaq.MendixCLI;
+namespace com.cinaq.MendixCLIExtension;
 
 public class MendixCLICommand
 {

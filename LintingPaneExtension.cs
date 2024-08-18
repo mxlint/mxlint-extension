@@ -2,7 +2,7 @@
 using Mendix.StudioPro.ExtensionsAPI.Services;
 using Mendix.StudioPro.ExtensionsAPI.UI.DockablePane;
 
-namespace com.cinaq.MendixCLI.MendixExtension;
+namespace com.cinaq.MendixCLIExtension;
 
 [Export(typeof(DockablePaneExtension))]
 public class LintingPaneExtension : DockablePaneExtension

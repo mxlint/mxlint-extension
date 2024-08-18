@@ -1,1 +1,4 @@
-﻿{ "mx_extensions": [ "com.cinaq.MendixCLI.MendixCLIExtension.dll" ] }
+{
+  "mx_extensions": [ "MendixCLIExtension.dll" ],
+  "mx_build_extensions": []
+}

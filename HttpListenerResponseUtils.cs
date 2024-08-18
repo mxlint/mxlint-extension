@@ -1,7 +1,7 @@
 using System.Net;
 using System.Text;
 
-namespace com.cinaq.MendixCLI.MendixExtension;
+namespace com.cinaq.MendixCLIExtension;
 
 public static class HttpListenerResponseUtils
 {

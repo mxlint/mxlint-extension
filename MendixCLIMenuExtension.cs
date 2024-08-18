@@ -2,7 +2,7 @@
 using Mendix.StudioPro.ExtensionsAPI.UI.Menu;
 using Mendix.StudioPro.ExtensionsAPI.UI.Services;
 
-namespace com.cinaq.MendixCLI.MendixExtension;
+namespace com.cinaq.MendixCLIExtension;
 
 [Export(typeof(MenuExtension))]
 [method: ImportingConstructor]

@@ -4,7 +4,7 @@ using Mendix.StudioPro.ExtensionsAPI.UI.DockablePane;
 using Mendix.StudioPro.ExtensionsAPI.UI.WebView;
 
 
-namespace com.cinaq.MendixCLI.MendixExtension;
+namespace com.cinaq.MendixCLIExtension;
 
 public class LintingPaneExtensionWebViewModel : WebViewDockablePaneViewModel
 {

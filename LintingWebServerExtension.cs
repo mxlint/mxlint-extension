@@ -5,7 +5,7 @@ using System.Text.Json;
 using Mendix.StudioPro.ExtensionsAPI.Services;
 using Mendix.StudioPro.ExtensionsAPI.UI.WebServer;
 
-namespace com.cinaq.MendixCLI.MendixExtension;
+namespace com.cinaq.MendixCLIExtension;
 
 [Export(typeof(WebServerExtension))]
 public class LintingWebServerExtension : WebServerExtension
