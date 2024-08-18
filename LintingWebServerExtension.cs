@@ -1,5 +1,6 @@
 using System.ComponentModel.Composition;
 using System.Net;
+using System.Text;
 using System.Text.Json;
 using Mendix.StudioPro.ExtensionsAPI.Services;
 using Mendix.StudioPro.ExtensionsAPI.UI.WebServer;
@@ -53,16 +54,19 @@ public class LintingWebServerExtension : WebServerExtension
 
     private async Task ServeAPI(HttpListenerRequest request, HttpListenerResponse response, CancellationToken ct)
     {
+        Console.WriteLine("API call");
         if (CurrentApp == null)
         {
             response.SendNoBodyAndClose(404);
             return;
         }
 
-        // var toDoList = new ToDoStorage(CurrentApp, _logService).LoadToDoList();
-        var toDoList = new List<string>();
+        // read json file
+        var jsonPath = Path.Combine(CurrentApp.Root.DirectoryPath, ".mendix-cache", "lint-results.json");
+        Console.WriteLine(jsonPath);
+        var data = await File.ReadAllTextAsync(jsonPath, ct);
         var jsonStream = new MemoryStream();
-        await JsonSerializer.SerializeAsync(jsonStream, toDoList, cancellationToken: ct);
+        jsonStream.Write(Encoding.UTF8.GetBytes(data));
 
         response.SendJsonAndClose(jsonStream);
     }

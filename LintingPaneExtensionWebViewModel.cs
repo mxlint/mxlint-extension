@@ -21,13 +21,13 @@ public class LintingPaneExtensionWebViewModel : WebViewDockablePaneViewModel
 
     public override void InitWebView(IWebView webView)
     {
-        // webView.Address = new Uri(_baseUri, "index");
+        webView.Address = new Uri(_baseUri, "index.html");
+        Console.WriteLine("InitWebView: " + _baseUri);
 
         // poor man's cache busting
-        var random = new Random();
-        int randomNumber = random.Next();
-        webView.Address = new Uri("http://localhost:8000/index.html?random=" + randomNumber);
-        webView.Reload();
+        // var random = new Random();
+        // int randomNumber = random.Next();
+        // webView.Address = new Uri("http://localhost:8000/index.html?random=" + randomNumber);
 
         webView.MessageReceived += (_, args) =>
         {
@@ -40,11 +40,12 @@ public class LintingPaneExtensionWebViewModel : WebViewDockablePaneViewModel
             //     AddToDo(currentApp, toDoText);
             //     webView.PostMessage("RefreshToDos");
             // }
+            Console.WriteLine("Message received: " + args.Message);
 
-            if (args.Message == "Refresh")
+            if (args.Message == "LintModel")
             {
                 Refresh(currentApp);
-                webView.PostMessage("RefreshToDos");
+                webView.PostMessage("Refresh");
             }
         };
     }
