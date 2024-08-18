@@ -27,8 +27,7 @@ dotnet build mendix-cli-studio-pro-extension.generated.sln /property:GenerateFul
 ## Test
 
 ```bash
-cp bin/Debug/net8.0 resources/App/extensions/com.cinaq.MendixCLI
-
+make
 /Applications/Studio\ Pro\ 10.12.2.41995-Beta.app/Contents/MacOS/studiopro --enable-extension-development
 ```
 
