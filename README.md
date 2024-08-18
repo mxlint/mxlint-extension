@@ -20,14 +20,13 @@ While [mendix-cli](https://github.com/cinaq/mendix-cli) is designed for pipeline
 ## Build
 
 ```bash
-dotnet build mendix-cli-studio-pro-extension.generated.sln /property:GenerateFullPaths=true /consoleloggerparameters:NoSummary /p:Configuration=Debug /p:Platform="Any CPU"
+make
 
 ```
 
 ## Test
 
 ```bash
-make
 /Applications/Studio\ Pro\ 10.12.2.41995-Beta.app/Contents/MacOS/studiopro --enable-extension-development
 ```
 
