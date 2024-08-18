@@ -21,24 +21,37 @@ public class LintingWebServerExtension : WebServerExtension
 
     public override void InitializeWebServer(IWebServer webServer)
     {
-        webServer.AddRoute("index", ServeIndex);
-        webServer.AddRoute("main.js", ServeMainJs);
-        webServer.AddRoute("data", ServeData);
+        var wwwrootPath = _extensionFileService.ResolvePath("wwwroot");
+        var files = Directory.GetFiles(wwwrootPath);
+
+        foreach (var file in files)
+        {
+            var route = Path.GetFileName(file);
+            webServer.AddRoute(route, (request, response, ct) => ServeFile(file, response, ct));
+        }
+
+        webServer.AddRoute("api", ServeAPI);
     }
 
-    private async Task ServeIndex(HttpListenerRequest request, HttpListenerResponse response, CancellationToken ct)
+    private async Task ServeFile(string filePath, HttpListenerResponse response, CancellationToken ct)
     {
-        var indexFilePath = _extensionFileService.ResolvePath("wwwroot", "index.html");
-        await response.SendFileAndClose("text/html", indexFilePath, ct);
+        var mimeType = GetMimeType(filePath);
+        await response.SendFileAndClose(mimeType, filePath, ct);
     }
 
-    private async Task ServeMainJs(HttpListenerRequest request, HttpListenerResponse response, CancellationToken ct)
+    private string GetMimeType(string filePath)
     {
-        var indexFilePath = _extensionFileService.ResolvePath("wwwroot", "main.js");
-        await response.SendFileAndClose("text/javascript", indexFilePath, ct);
+        var extension = Path.GetExtension(filePath);
+        return extension switch
+        {
+            ".html" => "text/html",
+            ".js" => "text/javascript",
+            ".css" => "text/css",
+            _ => "application/octet-stream"
+        };
     }
 
-    private async Task ServeData(HttpListenerRequest request, HttpListenerResponse response, CancellationToken ct)
+    private async Task ServeAPI(HttpListenerRequest request, HttpListenerResponse response, CancellationToken ct)
     {
         if (CurrentApp == null)
         {

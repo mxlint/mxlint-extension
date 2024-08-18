@@ -21,7 +21,13 @@ public class LintingPaneExtensionWebViewModel : WebViewDockablePaneViewModel
 
     public override void InitWebView(IWebView webView)
     {
-        webView.Address = new Uri(_baseUri, "index");
+        // webView.Address = new Uri(_baseUri, "index");
+
+        // poor man's cache busting
+        var random = new Random();
+        int randomNumber = random.Next();
+        webView.Address = new Uri("http://localhost:8000/index.html?random=" + randomNumber);
+        webView.Reload();
 
         webView.MessageReceived += (_, args) =>
         {
