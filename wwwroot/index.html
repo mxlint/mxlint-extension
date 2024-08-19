@@ -33,30 +33,55 @@
         </article>
 
         <article>
-            <header>Policies</header>
             <table class="striped">
                 <thead>
                     <tr>
-                        <th>Policy</th>
+                        <th>Severity</th>
+                        <th>Document</th>
+                        <th>Rule Name</th>
+                        <th>Category</th>
                         <th>Status</th>
-                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody id="policies">
                     <tr>
-                        <td>Policy 1</td>
-                        <td>Passed</td>
-                        <td>open</td>
+                        <td>MEDIUM</td>
+                        <td>
+                            <details>
+                                <summary>
+                                    modelsource\Administration\System Administration\ActiveSessions.Forms$Page.yaml
+                                </summary>
+                                <p>
+                                    <strong>Inline style property used</strong>
+                                    <br />
+                                    Avoid using the style property, because this will make the life of your UI designer a lot more complicated. It will be harder to overrule styles from CSS file level.
+                                </p>
+                            </details>
+                        </td>
+                        <td>InlineStylePropertyUsed</td>
+                        <td>Maintainability</td>
+                        <td><span class="pico-background-lime label">Passed</span></td>
                     </tr>
                     <tr>
-                        <td>Policy 2</td>
-                        <td>Failed</td>
-                        <td>open</td>
-                    </tr>
-                    <tr>
-                        <td>Policy 3</td>
-                        <td>Skipped</td>
-                        <td>open</td>
+                        <td>HIGH</td>
+                        <td>
+                            <details>
+                                <summary>
+                                    modelsource\\Security$ProjectSecurity.yaml
+                                </summary>
+                                <p>
+                                    <strong>Strong password policy</strong>
+                                    <br />
+                                    Bruteforce is quite common. Ensure passwords are very strong.
+                                    Avoid using the style property, because this will make the life of your UI designer a lot more complicated. It will be harder to overrule styles from CSS file level.
+                                </p>
+                                <p class="pico-color-blue"><strong>Remediation</strong><br />Ensure minimum password length of at least 8 characters and must use all character classes.</p>
+                                <p class="pico-color-orange"><strong>Error</strong><br />[HIGH, Security, 4100] Password must require symbols</p>
+                            </details>
+                        </td>
+                        <td>InlineStylePropertyUsed</td>
+                        <td>Security</td>
+                        <td><span class="pico-background-orange label">Failed</span></td>
                     </tr>
                 </tbody>
 

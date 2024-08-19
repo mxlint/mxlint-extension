@@ -5,7 +5,7 @@
       "suppressions": [],
       "suppressAppStoreWarnings": false,
       "showSuppressionInfo": true,
-      "type": "Mendix.Modeler.Suppressions.SuppressionRules, Mendix.Modeler.Core, Version=10.12.2.41995, Culture=neutral, PublicKeyToken=null"
+      "type": "Mendix.Modeler.Suppressions.SuppressionRules, Mendix.Modeler.Core, Version=10.12.2.0, Culture=neutral, PublicKeyToken=null"
     },
     {
       "suppressions": [],
@@ -13,7 +13,7 @@
       "readRecommendations": [],
       "suppressedRecommendations": [],
       "hasShownRecommendationsNotificationForThisApp": false,
-      "type": "Mendix.Modeler.MxAssist.PerformanceBot.Serialization.Configuration.PerformanceBotConfiguration, Mendix.Modeler.MxAssist.PerformanceBot.Serialization, Version=10.12.2.41995, Culture=neutral, PublicKeyToken=null"
+      "type": "Mendix.Modeler.MxAssist.PerformanceBot.Serialization.Configuration.PerformanceBotConfiguration, Mendix.Modeler.MxAssist.PerformanceBot.Serialization, Version=10.12.2.0, Culture=neutral, PublicKeyToken=null"
     }
   ]
 }

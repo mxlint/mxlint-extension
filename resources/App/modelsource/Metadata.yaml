@@ -120,4 +120,19 @@ Modules:
     NewSortIndex: 2
   ID: xn10Fre2rkKqvyVdyirurw==
   Name: MyFirstModule
+- Attributes:
+    $ID:
+      Data: qNGl5jx+SU2UyV9NjwJkRg==
+      Subtype: 0
+    $Type: Projects$ModuleImpl
+    AppStoreGuid: ""
+    AppStorePackageId: 0
+    AppStoreVersion: ""
+    AppStoreVersionGuid: ""
+    FromAppStore: false
+    IsThemeModule: false
+    Name: MendixCLIExtension
+    NewSortIndex: 3.1761271853677124
+  ID: qNGl5jx+SU2UyV9NjwJkRg==
+  Name: MendixCLIExtension
 ProductVersion: 10.12.2.41995

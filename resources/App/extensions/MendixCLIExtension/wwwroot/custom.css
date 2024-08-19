@@ -82,3 +82,7 @@ table {
 header {
     font-weight: 600;
 }
+
+td {
+    vertical-align: top;
+}

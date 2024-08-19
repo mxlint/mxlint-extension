@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
-using Mendix.StudioPro.ExtensionsAPI.Model.Projects;
 using Mendix.StudioPro.ExtensionsAPI.Model;
-using System.IO;
+using System.Net;
+using Mendix.StudioPro.ExtensionsAPI.Services;
 
 
 namespace com.cinaq.MendixCLIExtension;
@@ -11,20 +11,35 @@ public class MendixCLICommand
 
     IModel Model;
     string ExecutablePath;
+    string LintResultsPath;
+    string DownloadURL;
+    private readonly ILogService _logService;
 
-    public MendixCLICommand(IModel model)
+    public MendixCLICommand(IModel model, ILogService logService)
     {
         Model = model;
-        ExecutablePath = Path.Combine(Model.Root.DirectoryPath, "mendix-cli-local");
+        _logService = logService;
+        ExecutablePath = Path.Combine(Model.Root.DirectoryPath, ".mendix-cache", "mendix-cli-local.exe");
+        LintResultsPath = Path.Combine(Model.Root.DirectoryPath, ".mendix-cache", "lint-results.json");
+        DownloadURL = "https://github.com/cinaq/mendix-cli/releases/download/v2.2.2/mendix-cli-v2.2.2-windows-amd64.exe";
+
     }
 
-    public string exportModel()
+    public void Lint()
+    {
+        EnsureMendixCLI();
+        ExportModel();
+        LintModel();
+    }
+
+    public string ExportModel()
     {
         ProcessStartInfo startInfo = new ProcessStartInfo();
         startInfo.FileName = ExecutablePath;
         startInfo.Arguments = "export-model";
         startInfo.WorkingDirectory = Model.Root.DirectoryPath;
-        startInfo.RedirectStandardOutput = true;
+        startInfo.UseShellExecute = true;
+        startInfo.WindowStyle = ProcessWindowStyle.Hidden;
 
         Process process = new Process();
         process.StartInfo = startInfo;
@@ -35,24 +50,26 @@ public class MendixCLICommand
             process.WaitForExit();
 
             string output = process.StandardOutput.ReadToEnd();
-            Console.WriteLine(output);
+            _logService.Info(output);
             return output;
 
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Error: " + ex.Message);
+            _logService.Error("Error: " + ex.Message);
             return string.Empty; // Or handle the error appropriately
         }
     }
 
-    public string lintModel()
+    public string LintModel()
     {
         ProcessStartInfo startInfo = new ProcessStartInfo();
         startInfo.FileName = ExecutablePath;
-        startInfo.Arguments = "lint -j lint-results.json";
+        startInfo.Arguments = "lint -j " + LintResultsPath;
         startInfo.WorkingDirectory = Model.Root.DirectoryPath;
-        startInfo.RedirectStandardOutput = true;
+        startInfo.UseShellExecute = true;
+        startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+
 
         Process process = new Process();
         process.StartInfo = startInfo;
@@ -63,33 +80,29 @@ public class MendixCLICommand
             process.WaitForExit();
 
             string output = process.StandardOutput.ReadToEnd();
-            Console.WriteLine(output);
+            _logService.Info(output);
             return output;
 
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Error: " + ex.Message);
+            _logService.Error("Error: " + ex.Message);
             return string.Empty; // Or handle the error appropriately
         }
     }
 
-    private void ensureMendixCLI()
+    private void EnsureMendixCLI()
     {
-        ProcessStartInfo startInfo = new ProcessStartInfo();
-        startInfo.FileName = "npm";
-        startInfo.Arguments = "install -g mendix-cli";
-        startInfo.RedirectStandardOutput = true;
+        if (File.Exists(ExecutablePath))
+        {
+            _logService.Info("Mendix CLI already exists");
+            return;
+        }
 
-        Process process = new Process();
-        process.StartInfo = startInfo;
-        process.Start();
-
-        string output = process.StandardOutput.ReadToEnd();
-
-        Console.WriteLine("XXX");
-        Console.WriteLine(output);
-
-        process.WaitForExit();
+        using (var client = new WebClient())
+        {
+            _logService.Info("Downloading Mendix CLI from " + DownloadURL);
+            client.DownloadFile(DownloadURL, ExecutablePath);
+        }
     }
 }

@@ -22,12 +22,8 @@ public class LintingPaneExtensionWebViewModel : WebViewDockablePaneViewModel
     public override void InitWebView(IWebView webView)
     {
         webView.Address = new Uri(_baseUri, "index.html");
-        Console.WriteLine("InitWebView: " + _baseUri);
+        _logService.Info("InitWebView: " + _baseUri);
 
-        // poor man's cache busting
-        // var random = new Random();
-        // int randomNumber = random.Next();
-        // webView.Address = new Uri("http://localhost:8000/index.html?random=" + randomNumber);
 
         webView.MessageReceived += (_, args) =>
         {
@@ -40,7 +36,7 @@ public class LintingPaneExtensionWebViewModel : WebViewDockablePaneViewModel
             //     AddToDo(currentApp, toDoText);
             //     webView.PostMessage("RefreshToDos");
             // }
-            Console.WriteLine("Message received: " + args.Message);
+            _logService.Info("Message received: " + args.Message);
 
             if (args.Message == "LintModel")
             {
@@ -56,7 +52,10 @@ public class LintingPaneExtensionWebViewModel : WebViewDockablePaneViewModel
         // var toDoList = toDoStorage.LoadToDoList();
         // toDoList.ToDos.RemoveAll(x => x.IsDone);
         // toDoStorage.SaveToDoList(toDoList);
-        Console.WriteLine("Refreshing");
+        _logService.Info("Refreshing");
+        // export model
+        var cmd = new MendixCLICommand(currentApp, _logService);
+        cmd.Lint();
     }
 
 }
