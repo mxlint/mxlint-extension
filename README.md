@@ -4,6 +4,22 @@ While [mendix-cli](https://github.com/cinaq/mendix-cli) is designed for pipeline
 
 > This is still early stage of development. Follow this project for future updates.
 
+## Try out
+
+- download this repo as a zipfile
+- unpack the archive
+- open Mendix Studio pro with extension development flag, see Test section below
+- open the test app inside of the project at resources/App
+
+## Good to know
+
+- This extension uses mendix-cli tool behind the scenes
+- Policies are cached inside of .mendix-cache/policies folder of your project
+- You can add or modify policies inside of the cache folder
+- mendix-cli is cached inside of .mendix-cache as well. you can side load your own version if desired
+- current UX is not fantastic yet. mostly due to spawning heavy process to export and check the model.
+
+
 ## Delevelopment Environment
 
 ### OSX (MacOS)
