@@ -11,7 +11,7 @@
 <body>
     <main class="container-fluid">
         <article>
-            <header>Result: <span class="pico-background-orange label"> Fail </span></header>
+            <header>Result: <span id="result" class="pico-background-pink label"> Unknown </span><span aria-busy="true" id="loading" class="hidden">Checking...</span></header>
             <table>
                 <thead>
                     <tr>
@@ -23,16 +23,17 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td class="pico-background-lime text-large">1</td>
-                        <td class="pico-background-slate">3</td>
-                        <td class="pico-background-orange">2</td>
-                        <td class="pico-background-sand">6</td>
+                        <td id="summaryPass" class="pico-background-lime text-large">1</td>
+                        <td id="summarySkip" class="pico-background-slate">3</td>
+                        <td id="summaryFail" class="pico-background-orange">2</td>
+                        <td id="summaryTotal" class="pico-background-sand">6</td>
                     </tr>
                 </tbody>
             </table>
         </article>
 
         <article>
+            <header>Policies</header>
             <table class="striped">
                 <thead>
                     <tr>
@@ -60,7 +61,7 @@
                         </td>
                         <td>InlineStylePropertyUsed</td>
                         <td>Maintainability</td>
-                        <td><span class="pico-background-lime label">Passed</span></td>
+                        <td><span class="pico-background-orange label">Failed</span></td>
                     </tr>
                     <tr>
                         <td>HIGH</td>
@@ -87,7 +88,7 @@
 
             </table>
         </article>
-        <article>
+        <article class="hidden">
             <header>Debug</header>
             <button onclick="window.location.reload()">Reload</button>
             <button id="LintButton">Lint</button>

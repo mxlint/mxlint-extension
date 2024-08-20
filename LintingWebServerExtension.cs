@@ -54,7 +54,6 @@ public class LintingWebServerExtension : WebServerExtension
 
     private async Task ServeAPI(HttpListenerRequest request, HttpListenerResponse response, CancellationToken ct)
     {
-        Console.WriteLine("API call");
         if (CurrentApp == null)
         {
             response.SendNoBodyAndClose(404);
@@ -63,11 +62,9 @@ public class LintingWebServerExtension : WebServerExtension
 
         // read json file
         var jsonPath = Path.Combine(CurrentApp.Root.DirectoryPath, ".mendix-cache", "lint-results.json");
-        Console.WriteLine(jsonPath);
         var data = await File.ReadAllTextAsync(jsonPath, ct);
         var jsonStream = new MemoryStream();
         jsonStream.Write(Encoding.UTF8.GetBytes(data));
-
         response.SendJsonAndClose(jsonStream);
     }
 }

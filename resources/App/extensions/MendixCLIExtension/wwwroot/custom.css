@@ -86,3 +86,7 @@ header {
 td {
     vertical-align: top;
 }
+
+.hidden {
+    display: none;
+}

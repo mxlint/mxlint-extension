@@ -1,27 +1,27 @@
 $Type: Security$ProjectSecurity
-AdminPassword: ""
+AdminPassword: "1"
 AdminUserName: MxAdmin
 AdminUserRole: Administrator
 CheckSecurity: true
 DemoUsers:
 - $Type: Security$DemoUserImpl
   Entity: Administration.Account
-  Password: pKPZYg1FaMW8
+  Password: cE;Nn+dD^_\9
   UserName: demo_administrator
   UserRoles:
   - Administrator
 - $Type: Security$DemoUserImpl
   Entity: Administration.Account
-  Password: zM4TMfGZLwmy
+  Password: C&{X-3<**n;W
   UserName: demo_user
   UserRoles:
   - User
-EnableDemoUsers: true
+EnableDemoUsers: false
 EnableGuestAccess: false
 FileDocumentAccess:
   $Type: Security$FileDocumentAccessRuleContainer
   AccessRules: null
-GuestUserRole: ""
+GuestUserRole: User
 ImageAccess:
   $Type: Security$ImageAccessRuleContainer
   AccessRules: null
@@ -30,8 +30,8 @@ PasswordPolicySettings:
   MinimumLength: 12
   RequireDigit: true
   RequireMixedCase: true
-  RequireSymbol: false
-SecurityLevel: CheckNothing
+  RequireSymbol: true
+SecurityLevel: CheckEverything
 StrictMode: false
 StrictPageUrlCheck: true
 UserRoles:
