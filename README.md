@@ -20,7 +20,7 @@ While [mendix-cli](https://github.com/cinaq/mendix-cli) is designed for pipeline
 - current UX is not fantastic yet. mostly due to spawning heavy process to export and check the model.
 
 
-## Delevelopment Environment
+## Development Environment
 
 ### OSX (MacOS)
 
