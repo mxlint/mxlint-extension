@@ -11,6 +11,8 @@ While [mendix-cli](https://github.com/cinaq/mendix-cli) is designed for pipeline
 - open Mendix Studio pro with extension development flag, see Test section below
 - open the test app inside of the project at resources/App
 
+> if you want to try this on your own project, just copy the contents of extensions from the test app here into your app.
+
 ## Good to know
 
 - This extension uses mendix-cli tool behind the scenes
