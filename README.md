@@ -10,20 +10,20 @@ https://github.com/user-attachments/assets/e23aab95-2b03-4e88-bb87-902fd99cf774
 
 ## Try out
 
-- download this repo as a zipfile
-- unpack the archive
-- open Mendix Studio pro with extension development flag, see Test section below
-- open the test app inside of the project at resources/App
+- Download this repo as a zipfile
+- Unpack the archive
+- Open Mendix Studio pro with extension development flag, see Test section below
+- Open the test app locally which can be found inside of the project at `resources/App`
 
-> if you want to try this on your own project, just copy the contents of extensions from the test app here into your app.
+> If you want to try this on your own project, just copy the `extensions` directory from the test app here into your app.
 
 ## Good to know
 
 - This extension uses mendix-cli tool behind the scenes
-- Policies are cached inside of .mendix-cache/policies folder of your project
+- Policies are cached inside of `.mendix-cache/policies` folder of your project
 - You can add or modify policies inside of the cache folder
-- mendix-cli is cached inside of .mendix-cache as well. you can side load your own version if desired
-- current UX is not fantastic yet. mostly due to spawning heavy process to export and check the model.
+- mendix-cli is cached inside of `.mendix-cache` as well. You can sideload your version if desired
+- Current UX is not fantastic yet. Mostly due to spawning heavy process to export and check the model.
 
 
 ## Development Environment
