@@ -4,6 +4,10 @@ While [mendix-cli](https://github.com/cinaq/mendix-cli) is designed for pipeline
 
 > This is still early stage of development. Follow this project for future updates.
 
+
+https://github.com/user-attachments/assets/e23aab95-2b03-4e88-bb87-902fd99cf774
+
+
 ## Try out
 
 - download this repo as a zipfile
