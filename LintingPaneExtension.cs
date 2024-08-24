@@ -20,6 +20,6 @@ public class LintingPaneExtension : DockablePaneExtension
 
     public override DockablePaneViewModelBase Open()
     {
-        return new LintingPaneExtensionWebViewModel(WebServerBaseUrl, () => CurrentApp, _logService) { Title = "Linting" };
+        return new LintingPaneExtensionWebViewModel(new Uri(Path.Combine(WebServerBaseUrl.AbsoluteUri,"wwwroot")), () => CurrentApp, _logService) { Title = "Linting" };
     }
 }
