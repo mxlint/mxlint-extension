@@ -1,9 +1,8 @@
 ﻿using System.Diagnostics;
 using Mendix.StudioPro.ExtensionsAPI.Model;
-using System.Net;
+using System.Net.Http;
 using Mendix.StudioPro.ExtensionsAPI.Services;
 using System.IO.Compression;
-
 
 namespace com.cinaq.MendixCLIExtension;
 
@@ -31,64 +30,63 @@ public class MendixCLICommand
         BaseURL = "https://github.com/cinaq/mendix-cli/releases/download/" + MendixCLIVersion + "/";
     }
 
-    public void Lint()
+    public async Task Lint()
     {
-        EnsureMendixCLI();
-        EnsurePolicies();
-        ExportModel();
-        LintModel();
+        try
+        {
+            await EnsureMendixCLI();
+            await EnsurePolicies();
+            await ExportModel();
+            await LintModel();
+        }
+        catch (Exception ex)
+        {
+            _logService.Error($"Error during linting process: {ex.Message}");
+        }
     }
 
-    public void ExportModel()
+    public async Task ExportModel()
     {
-        ProcessStartInfo startInfo = new ProcessStartInfo();
-        startInfo.FileName = ExecutablePath;
-        startInfo.Arguments = "export-model";
-        startInfo.WorkingDirectory = Model.Root.DirectoryPath;
-        startInfo.UseShellExecute = true;
-        startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+        await RunProcess("export-model", "Exporting model");
+    }
 
-        Process process = new Process();
-        process.StartInfo = startInfo;
+    public async Task LintModel()
+    {
+        await RunProcess($"lint -j {LintResultsPath} -p {PoliciesPath}", "Linting model");
+    }
+
+    private async Task RunProcess(string arguments, string operationName)
+    {
+        var startInfo = new ProcessStartInfo
+        {
+            FileName = ExecutablePath,
+            Arguments = arguments,
+            WorkingDirectory = Model.Root.DirectoryPath,
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            CreateNoWindow = true
+        };
+
+        using var process = new Process { StartInfo = startInfo };
+        process.OutputDataReceived += (sender, e) => { if (e.Data != null) _logService.Info(e.Data); };
+        process.ErrorDataReceived += (sender, e) => { if (e.Data != null) _logService.Error(e.Data); };
 
         try
         {
             process.Start();
-            process.WaitForExit();
-            _logService.Info("Finished export model");
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
+            await process.WaitForExitAsync();
+            _logService.Info($"Finished {operationName}");
         }
         catch (Exception ex)
         {
-            _logService.Error("Error: " + ex.Message);
+            _logService.Error($"Error during {operationName}: {ex.Message}");
         }
     }
 
-    public void LintModel()
-    {
-        ProcessStartInfo startInfo = new ProcessStartInfo();
-        startInfo.FileName = ExecutablePath;
-        startInfo.Arguments = "lint -j " + LintResultsPath + " -p " + PoliciesPath;
-        startInfo.WorkingDirectory = Model.Root.DirectoryPath;
-        startInfo.UseShellExecute = true;
-        startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-
-
-        Process process = new Process();
-        process.StartInfo = startInfo;
-
-        try
-        {
-            process.Start();
-            process.WaitForExit();
-            _logService.Info("Finished lint model");
-        }
-        catch (Exception ex)
-        {
-            _logService.Error("Error: " + ex.Message);
-        }
-    }
-
-    private void EnsureMendixCLI()
+    private async Task EnsureMendixCLI()
     {
         if (File.Exists(ExecutablePath))
         {
@@ -96,14 +94,19 @@ public class MendixCLICommand
             return;
         }
 
-        using (var client = new WebClient())
+        using (var client = new HttpClient())
         {
             string DownloadURL = BaseURL + "mendix-cli-" + MendixCLIVersion + "-windows-amd64.exe";
             _logService.Info("Downloading Mendix CLI from " + DownloadURL);
-            client.DownloadFile(DownloadURL, ExecutablePath);
+            var response = await client.GetAsync(DownloadURL);
+            using (var fs = new FileStream(ExecutablePath, FileMode.CreateNew))
+            {
+                await response.Content.CopyToAsync(fs);
+            }
         }
     }
-    private void EnsurePolicies()
+
+    private async Task EnsurePolicies()
     {
         if (Directory.Exists(PoliciesPath))
         {
@@ -111,12 +114,16 @@ public class MendixCLICommand
             return;
         }
 
-        using (var client = new WebClient())
+        using (var client = new HttpClient())
         {
             string DownloadURL = BaseURL + "policies-" + MendixCLIVersion + ".zip";
             string tempPolicies = Path.Combine(CachePath, "policies.zip");
             _logService.Info("Downloading Policies from " + DownloadURL);
-            client.DownloadFile(DownloadURL, tempPolicies);
+            var response = await client.GetAsync(DownloadURL);
+            using (var fs = new FileStream(tempPolicies, FileMode.CreateNew))
+            {
+                await response.Content.CopyToAsync(fs);
+            }
             // unzip
             ZipFile.ExtractToDirectory(tempPolicies, CachePath);
         }
