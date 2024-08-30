@@ -11,25 +11,12 @@
 <body>
     <main class="container-fluid">
         <article>
-            <header>Result: <span id="result" class="pico-background-pink label"> Unknown </span><span aria-busy="true" id="loading" class="hidden">Checking...</span></header>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Pass</th>
-                        <th>Skip</th>
-                        <th>Fail</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td id="summaryPass" class="pico-background-lime text-large">1</td>
-                        <td id="summarySkip" class="pico-background-slate">3</td>
-                        <td id="summaryFail" class="pico-background-orange">2</td>
-                        <td id="summaryTotal" class="pico-background-sand">6</td>
-                    </tr>
-                </tbody>
-            </table>
+            <header>Result: <span id="result" class=""> Unknown </span><span aria-busy="true" id="loading" class="hidden">Checking...</span></header>
+            <div class="bar-chart">
+                <div id="summaryPass" class="bar pico-background-lime" style="width: 40%;"></div>
+                <div id="summarySkip" class="bar pico-background-slate" style="width: 50%;"></div>
+                <div id="summaryFail" class="bar pico-background-orange" style="width: 10%;"></div>
+            </div>
         </article>
 
         <article>
@@ -88,11 +75,14 @@
 
             </table>
         </article>
-        <article class="hidden">
+        <article class="hidden" id="debug">
             <header>Debug</header>
             <button onclick="window.location.reload()">Reload</button>
             <button id="LintButton">Lint</button>
         </article>
+        <div class="center">
+            <a href="#" id="toggleDebug">Debug</a> | <a href="https://github.com/cinaq/mendix-cli-extension">Github</a>
+        </div>
     </main>
     <script type="module" src="./main.js"></script>
 </body>

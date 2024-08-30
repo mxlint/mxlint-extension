@@ -28,6 +28,9 @@ https://github.com/user-attachments/assets/e23aab95-2b03-4e88-bb87-902fd99cf774
 
 ## Development Environment
 
+- [Pico CSS](https://picocss.com/docs)
+
+
 ### OSX (MacOS)
 
 - [Visual Studio Code](https://code.visualstudio.com/)
@@ -52,6 +55,20 @@ make
 
 - [Visual Studio 2022](https://visualstudio.microsoft.com/)
 - [Mendix Studio Pro 10.12.2](https://marketplace.mendix.com/link/studiopro)
+
+### Dev
+
+Open Powershell as Administrator and run the following commands:
+
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
+```
+
+Then run the script to build and test the extension:
+
+```powershell
+.\dev\build-windows.ps1
+```
 
 #### Build
 

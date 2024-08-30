@@ -73,6 +73,7 @@ article>footer {
 .label {
     padding: 0.2em 0.5em;
     border-radius: var(--pico-border-radius);
+    margin: 2px;
 }
 
 table {
@@ -89,4 +90,23 @@ td {
 
 .hidden {
     display: none;
+}
+
+.center {
+    text-align: center;
+}
+
+.bar-chart {
+    width: 100%;
+    margin: 20px auto;
+    overflow: auto;
+}
+
+.bar {
+    text-align: left;
+    padding: 6px 0;
+    margin: 0;
+    border-radius: 0;
+    float: left;
+    height: 2em;
 }

@@ -32,6 +32,7 @@ public class LintingPaneExtensionWebViewModel : WebViewDockablePaneViewModel
         _logService.Info($"InitWebView: {_baseUri}");
 
         webView.MessageReceived += HandleWebViewMessage;
+        //webView.ShowDevTools();
     }
 
     private async void HandleWebViewMessage(object? sender, MessageReceivedEventArgs args)  // Change 2: Make sender nullable
@@ -42,6 +43,10 @@ public class LintingPaneExtensionWebViewModel : WebViewDockablePaneViewModel
         if (args.Message == "refreshData")
         {
             await Refresh(currentApp);
+        }
+        if (args.Message == "toggleDebug")
+        {
+            _webView?.ShowDevTools();
         }
     }
 

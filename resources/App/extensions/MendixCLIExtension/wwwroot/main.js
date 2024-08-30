@@ -142,40 +142,65 @@ async function refreshData() {
             }
         }
     }
+
     total = pass + skip + fail;
-    document.getElementById("summaryTotal").innerText = total;
-    document.getElementById("summaryPass").innerText = pass;
-    document.getElementById("summarySkip").innerText = skip;
-    document.getElementById("summaryFail").innerText = fail;
+    let passWidth = (pass / total) * 100;
+    let skipWidth = (skip / total) * 100;
+    let failWidth = (fail / total) * 100;
+    document.getElementById("summaryPass").style = "width: " + passWidth + "%;";
+    document.getElementById("summarySkip").style = "width: " + skipWidth + "%;";
+    document.getElementById("summaryFail").style = "width: " + failWidth + "%;";
 
+    let labelPass = document.createElement("span");
+    labelPass.innerText = pass + " pass";
+    labelPass.classList.add("label");
+    labelPass.classList.add("pico-background-lime");
+    let labelSkip = document.createElement("span");
+    labelSkip.innerText = skip + " skip";
+    labelSkip.classList.add("label");
+    labelSkip.classList.add("pico-background-slate");
+    let labelFail = document.createElement("span");
+    labelFail.innerText = fail + " fail";
+    labelFail.classList.add("label");
+    labelFail.classList.add("pico-background-orange");
+    let labelTotal = document.createElement("span");
+    labelTotal.innerText = total + " total";
+    labelTotal.classList.add("label");
+    labelTotal.classList.add("pico-background-sand");
+
+    document.getElementById("result").replaceChildren();
     if (fail > 0) {
-        document.getElementById("result").innerText = "fail";
-        document.getElementById("result").classList.value = "pico-background-orange";
-    } else {
-        document.getElementById("result").innerText = "pass";
-        document.getElementById("result").classList.value = "pico-background-lime";
+        document.getElementById("result").appendChild(labelFail);
     }
-    document.getElementById("result").classList.add("label");
-
-
+    document.getElementById("result").appendChild(labelPass);
+    
+    if (skip > 0) {
+        document.getElementById("result").appendChild(labelSkip);
+    }
+    document.getElementById("result").appendChild(labelTotal);
 
     policies.replaceChildren(...policyItems);
 }
 
 function init() {
     document.getElementById("policies").replaceChildren();
-    document.getElementById("summaryTotal").innerText = "-";
-    document.getElementById("summaryPass").innerText = "-";
-    document.getElementById("summarySkip").innerText = "-";
-    document.getElementById("summaryFail").innerText = "-";
+    //document.getElementById("summaryPass").innerText = "-";
+    //document.getElementById("summarySkip").innerText = "-";
+    //document.getElementById("summaryFail").innerText = "-";
     document.getElementById("result").innerText = "-";
 }
 
-/*
-document.getElementById("LintButton").addEventListener("click", () => {
-    postMessage("LintModel");
+
+document.getElementById("toggleDebug").addEventListener("click", () => {
+    let hidden = document.getElementById("debug").classList.contains("hidden");
+    if (hidden) {
+        document.getElementById("debug").classList.remove("hidden");
+    } else {
+        document.getElementById("debug").classList.add("hidden");
+    }
+    postMessage("toggeDebug");
+
 });
-*/
 
 init();
 

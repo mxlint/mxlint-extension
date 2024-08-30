@@ -11,7 +11,8 @@ public class MendixCLIMenuExtension(IDockingWindowService dockingWindowService, 
 
     public override IEnumerable<MenuViewModel> GetMenus()
     {
-        yield return new MenuViewModel("About", () => messageBoxService.ShowInformation("Hello World!"));
         yield return new MenuViewModel("Open Linting", () => dockingWindowService.OpenPane(LintingPaneExtension.ID));
+        yield return new MenuViewModel("About", () => messageBoxService.ShowInformation("Find the latest version and license info at https://github.com/cinaq/mendix-cli-extension"));
+
     }
 }
