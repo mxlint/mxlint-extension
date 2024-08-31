@@ -1,5 +1,98 @@
+let exampleData = {
+    "testsuites": [
+        {
+            "name": "C:\\Users\\ops\\source\\repos\\cinaq\\mendix-cli-extension\\resources\\App\\.mendix-cache\\policies\\001_project_settings\\001_0001_anonymous_disabled.rego",
+            "tests": 1,
+            "failures": 0,
+            "skipped": 0,
+            "time": 0.0025816,
+            "testcases": [
+                {
+                    "name": "modelsource\\Security$ProjectSecurity.yaml",
+                    "time": 0.0025816
+                }
+            ]
+        },
+        {
+            "name": "C:\\Users\\ops\\source\\repos\\cinaq\\mendix-cli-extension\\resources\\App\\.mendix-cache\\policies\\001_project_settings\\001_0002_demo_users_disabled.rego",
+            "tests": 1,
+            "failures": 1,
+            "skipped": 0,
+            "time": 0.0020738,
+            "testcases": [
+                {
+                    "name": "modelsource\\Security$ProjectSecurity.yaml",
+                    "time": 0.0020738,
+                    "failure": {
+                        "message": "[HIGH, Security, 4098] Business apps should disable demo users",
+                        "type": "AssertionError"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "C:\\Users\\ops\\source\\repos\\cinaq\\mendix-cli-extension\\resources\\App\\.mendix-cache\\policies\\001_project_settings\\001_0003_security_checks.rego",
+            "tests": 1,
+            "failures": 0,
+            "skipped": 0,
+            "time": 0.0025866,
+            "testcases": [
+                {
+                    "name": "modelsource\\Security$ProjectSecurity.yaml",
+                    "time": 0.0025866
+                }
+            ]
+        }
+    ],
+    "policies": [
+        {
+            "title": "Business apps must always require login",
+            "description": "No anonymous means every user must have valid login session or credentials",
+            "category": "Security",
+            "severity": "HIGH",
+            "ruleNumber": "001_0001",
+            "remediation": "Disable anonymous/guest access in Project Security",
+            "ruleName": "AnonymousDisabled",
+            "path": "C:\\Users\\ops\\source\\repos\\cinaq\\mendix-cli-extension\\resources\\App\\.mendix-cache\\policies\\001_project_settings\\001_0001_anonymous_disabled.rego",
+            "skipReason": "",
+            "pattern": "Security$ProjectSecurity.yaml",
+            "packageName": "app.mendix.project_settings.anonymous_disabled"
+        },
+        {
+            "title": "Business apps should disable demo users",
+            "description": "No demo users",
+            "category": "Security",
+            "severity": "HIGH",
+            "ruleNumber": "001_0002",
+            "remediation": "Disable demo users in Project Security",
+            "ruleName": "DemoUsersDisabled",
+            "path": "C:\\Users\\ops\\source\\repos\\cinaq\\mendix-cli-extension\\resources\\App\\.mendix-cache\\policies\\001_project_settings\\001_0002_demo_users_disabled.rego",
+            "skipReason": "",
+            "pattern": "Security$ProjectSecurity.yaml",
+            "packageName": "app.mendix.project_settings.demo_users_disabled"
+        },
+        {
+            "title": "Ensure security rules are active",
+            "description": "Any serious app needs entity access security configured",
+            "category": "Security",
+            "severity": "MEDIUM",
+            "ruleNumber": "001_0003",
+            "remediation": "Set Security check to production in Project Security",
+            "ruleName": "SecurityChecks",
+            "path": "C:\\Users\\ops\\source\\repos\\cinaq\\mendix-cli-extension\\resources\\App\\.mendix-cache\\policies\\001_project_settings\\001_0003_security_checks.rego",
+            "skipReason": "",
+            "pattern": "Security$ProjectSecurity.yaml",
+            "packageName": "app.mendix.project_settings.security_checks"
+        },
+    ]
+};
+document.filter = ["HIGH", "MEDIUM", "LOW"];
 
 function postMessage(message, data) {
+    if (window.chrome.webview === undefined) {
+        console.log("Missing webview ", message, data);
+        return;
+    }
     window.chrome.webview.postMessage({ message, data });
 }
 
@@ -10,14 +103,16 @@ async function handleMessage(event) {
         await refreshData();
     } else if (message === "start") {
         document.getElementById("loading").classList.remove("hidden");
-        document.getElementById("result").classList.add("hidden");
+        document.getElementById("ready").classList.add("hidden");
     } else if (message === "end") {
         document.getElementById("loading").classList.add("hidden");
-        document.getElementById("result").classList.remove("hidden");
+        document.getElementById("ready").classList.remove("hidden");
     }
 }
 
-window.chrome.webview.addEventListener("message", handleMessage);
+if (window.chrome.webview !== undefined) {
+    window.chrome.webview.addEventListener("message", handleMessage);
+}
 
 
 function getPolicy(path, policies) {
@@ -29,9 +124,10 @@ function getPolicy(path, policies) {
 }
 
 function flattenTestCase(testsuite, testcase, policies) {
+    console.log(testsuite.name);
     const policy = getPolicy(testsuite.name, policies);
     let status = "pass";
-    let statusClass = "pico-background-lime";
+    let statusClass = "pico-background-cyan";
     if (policy.skipReason != "") {
         status = "skip";
         statusClass = "pico-background-slate";
@@ -43,7 +139,21 @@ function flattenTestCase(testsuite, testcase, policies) {
     testcase.policy = policy;
     testcase.status = status;
     testcase.statusClass = statusClass;
+    // clean up name
+    let modelsource = "modelsource\\";
+    if (testcase.name.startsWith(modelsource)) {
+        testcase.name = testcase.name.substring(modelsource.length);
+    }
     return testcase;
+}
+
+function createSpan(text, className) {
+    let span = document.createElement("span");
+    span.innerText = text;
+    if (className !== undefined) {
+        span.classList.add(className);
+    }
+    return span;
 }
 
 function renderTestCase(testcase) {
@@ -53,7 +163,6 @@ function renderTestCase(testcase) {
     let tdRuleName = document.createElement("td");
     let tdCategory = document.createElement("td");
     let tdStatus = document.createElement("td");
-    tdSeverity.innerText = testcase.policy.severity;
 
     let details = document.createElement("details");
     let summary = document.createElement("summary");
@@ -96,15 +205,17 @@ function renderTestCase(testcase) {
         details.appendChild(pError);
     }
 
-    tdDocument.appendChild(details);
-    tdRuleName.innerText = testcase.policy.ruleName;
-    tdCategory.innerText = testcase.policy.category;
 
     let spanStatus = document.createElement("span");
     spanStatus.innerText = testcase.status;
     spanStatus.classList.add("label");
     spanStatus.classList.add(testcase.statusClass);
-    tdStatus.appendChild(spanStatus);
+
+    tdSeverity.replaceChildren(createSpan(testcase.policy.severity));
+    tdDocument.replaceChildren(details);
+    tdRuleName.replaceChildren(createSpan(testcase.policy.ruleName));
+    tdCategory.replaceChildren(createSpan(testcase.policy.category));
+    tdStatus.replaceChildren(spanStatus);
 
     tr.appendChild(tdSeverity);
     tr.appendChild(tdDocument);
@@ -114,34 +225,53 @@ function renderTestCase(testcase) {
     return tr;
 }
 
-async function refreshData() {
-    let response = await fetch("./api");
-    let data = await response.json();
-
-    let policies = document.getElementById("policies");
+function renderData() {
+    let details = document.getElementById("testcases");
 
     let policyItems = [];
     let pass = 0;
     let skip = 0;
     let fail = 0;
     let total = 0;
+    let all_testcases = [];
+    let data = document.data;
 
     for (const testsuite of data.testsuites) {
-
         let testcases = testsuite.testcases;
         for (const testcase of testcases) {
             let ts = flattenTestCase(testsuite, testcase, data.policies);
-            let tr = renderTestCase(ts);
-            policyItems.push(tr);
             if (ts.status === "fail") {
                 fail++;
+                ts.status_code = 1;
             } else if (ts.status === "skip") {
                 skip++;
+                ts.status_code = 2;
             } else {
                 pass++;
+                ts.status_code = 3;
             }
+            if (ts.policy.severity === "HIGH") {
+                ts.severity_code = 1;
+            } else if (ts.policy.severity === "MEDIUM") {
+                ts.severity_code = 2;
+            } else {
+                ts.severity_code = 3;
+            }
+            all_testcases.push(ts);
         }
     }
+
+    let testcases_filtered = all_testcases.filter((ts) => document.filter.includes(ts.policy.severity));
+
+    let testcases_sorted = testcases_filtered.sort((a, b) => {
+        return a.severity_code - b.severity_code || a.status_code - b.status_code;
+    });
+
+    for (const ts of testcases_sorted) {
+        let tr = renderTestCase(ts);
+        policyItems.push(tr);
+    }
+    let policies = data.policies.length;
 
     total = pass + skip + fail;
     let passWidth = (pass / total) * 100;
@@ -151,43 +281,32 @@ async function refreshData() {
     document.getElementById("summarySkip").style = "width: " + skipWidth + "%;";
     document.getElementById("summaryFail").style = "width: " + failWidth + "%;";
 
-    let labelPass = document.createElement("span");
-    labelPass.innerText = pass + " pass";
-    labelPass.classList.add("label");
-    labelPass.classList.add("pico-background-lime");
-    let labelSkip = document.createElement("span");
-    labelSkip.innerText = skip + " skip";
-    labelSkip.classList.add("label");
-    labelSkip.classList.add("pico-background-slate");
-    let labelFail = document.createElement("span");
-    labelFail.innerText = fail + " fail";
-    labelFail.classList.add("label");
-    labelFail.classList.add("pico-background-orange");
-    let labelTotal = document.createElement("span");
-    labelTotal.innerText = total + " total";
-    labelTotal.classList.add("label");
-    labelTotal.classList.add("pico-background-sand");
+    document.getElementById("pass").innerText = pass;
+    document.getElementById("skip").innerText = skip;
+    document.getElementById("fail").innerText = fail;
+    document.getElementById("total").innerText = total;
+    document.getElementById("policies").innerText = policies;
 
-    document.getElementById("result").replaceChildren();
-    if (fail > 0) {
-        document.getElementById("result").appendChild(labelFail);
-    }
-    document.getElementById("result").appendChild(labelPass);
     
-    if (skip > 0) {
-        document.getElementById("result").appendChild(labelSkip);
+    details.replaceChildren(...policyItems);
+    if (total === 0) {
+        details.replaceChildren(createSpan("Whoops! Nothing here yet", "pico-color-gray"));
     }
-    document.getElementById("result").appendChild(labelTotal);
+}
 
-    policies.replaceChildren(...policyItems);
+async function refreshData() {
+    let response = await fetch("./api");
+    document.data = await response.json();
+    renderData();
 }
 
 function init() {
-    document.getElementById("policies").replaceChildren();
-    //document.getElementById("summaryPass").innerText = "-";
-    //document.getElementById("summarySkip").innerText = "-";
-    //document.getElementById("summaryFail").innerText = "-";
-    document.getElementById("result").innerText = "-";
+    document.data = {
+        "testsuites": [],
+        "policies": []
+    }
+    //document.data = exampleData;
+    renderData();
 }
 
 
@@ -207,5 +326,5 @@ init();
 postMessage("MessageListenerRegistered");
 setInterval(async () => {
     postMessage("refreshData");
-    //    await refreshData();
+    //await refreshData();
 }, 1000);
