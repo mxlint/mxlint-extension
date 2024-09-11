@@ -44,7 +44,7 @@ let exampleData = {
             ]
         }
     ],
-    "policies": [
+    "rules": [
         {
             "title": "Business apps must always require login",
             "description": "No anonymous means every user must have valid login session or credentials",
@@ -115,20 +115,20 @@ if (window.chrome.webview !== undefined) {
 }
 
 
-function getPolicy(path, policies) {
-    for (const policy of policies) {
-        if (policy.path == path) {
-            return policy;
+function getRule(path, rules) {
+    for (const rule of rules) {
+        if (rule.path == path) {
+            return rule;
         }
     }
 }
 
-function flattenTestCase(testsuite, testcase, policies) {
+function flattenTestCase(testsuite, testcase, rules) {
     console.log(testsuite.name);
-    const policy = getPolicy(testsuite.name, policies);
+    const rule = getRule(testsuite.name, rules);
     let status = "pass";
     let statusClass = "pico-background-cyan";
-    if (policy.skipReason != "") {
+    if (rule.skipReason != "") {
         status = "skip";
         statusClass = "pico-background-slate";
     }
@@ -136,7 +136,7 @@ function flattenTestCase(testsuite, testcase, policies) {
         status = "fail";
         statusClass = "pico-background-orange";
     }
-    testcase.policy = policy;
+    testcase.rule = rule;
     testcase.status = status;
     testcase.statusClass = statusClass;
     // clean up name
@@ -176,9 +176,9 @@ function renderTestCase(testcase) {
 
     let pDescription = document.createElement("p");
     let title = document.createElement("strong");
-    title.innerText = testcase.policy.title;
+    title.innerText = testcase.rule.title;
     let description = document.createElement("span");
-    description.innerText = testcase.policy.description;
+    description.innerText = testcase.rule.description;
 
 
     pDescription.appendChild(title);
@@ -190,7 +190,7 @@ function renderTestCase(testcase) {
     let remediation = document.createElement("strong");
     remediation.innerText = "Remediation";
     let remediationDescription = document.createElement("span");
-    remediationDescription.innerText = testcase.policy.remediation;
+    remediationDescription.innerText = testcase.rule.remediation;
     pRemediation.appendChild(remediation);
     pRemediation.appendChild(document.createElement("br"));
     pRemediation.appendChild(remediationDescription);
@@ -216,10 +216,10 @@ function renderTestCase(testcase) {
     spanStatus.classList.add("label");
     spanStatus.classList.add(testcase.statusClass);
 
-    tdSeverity.replaceChildren(createSpan(testcase.policy.severity));
+    tdSeverity.replaceChildren(createSpan(testcase.rule.severity));
     tdDocument.replaceChildren(details);
-    tdRuleName.replaceChildren(createSpan(testcase.policy.ruleName));
-    tdCategory.replaceChildren(createSpan(testcase.policy.category));
+    tdRuleName.replaceChildren(createSpan(testcase.rule.ruleName));
+    tdCategory.replaceChildren(createSpan(testcase.rule.category));
     tdStatus.replaceChildren(spanStatus);
 
     tr.appendChild(tdSeverity);
@@ -233,7 +233,7 @@ function renderTestCase(testcase) {
 function renderData() {
     let details = document.getElementById("testcases");
 
-    let policyItems = [];
+    let ruleItems = [];
     let pass = 0;
     let skip = 0;
     let fail = 0;
@@ -244,7 +244,7 @@ function renderData() {
     for (const testsuite of data.testsuites) {
         let testcases = testsuite.testcases;
         for (const testcase of testcases) {
-            let ts = flattenTestCase(testsuite, testcase, data.policies);
+            let ts = flattenTestCase(testsuite, testcase, data.rules);
             if (ts.status === "fail") {
                 fail++;
                 ts.status_code = 1;
@@ -255,9 +255,9 @@ function renderData() {
                 pass++;
                 ts.status_code = 3;
             }
-            if (ts.policy.severity === "HIGH") {
+            if (ts.rule.severity === "HIGH") {
                 ts.severity_code = 1;
-            } else if (ts.policy.severity === "MEDIUM") {
+            } else if (ts.rule.severity === "MEDIUM") {
                 ts.severity_code = 2;
             } else {
                 ts.severity_code = 3;
@@ -266,7 +266,7 @@ function renderData() {
         }
     }
 
-    let testcases_filtered = all_testcases.filter((ts) => document.filter.includes(ts.policy.severity));
+    let testcases_filtered = all_testcases.filter((ts) => document.filter.includes(ts.rule.severity));
 
     let testcases_sorted = testcases_filtered.sort((a, b) => {
         return a.severity_code - b.severity_code || a.status_code - b.status_code;
@@ -274,9 +274,9 @@ function renderData() {
 
     for (const ts of testcases_sorted) {
         let tr = renderTestCase(ts);
-        policyItems.push(tr);
+        ruleItems.push(tr);
     }
-    let policies = data.policies.length;
+    let rules = data.rules.length;
 
     total = pass + skip + fail;
     let passWidth = (pass / total) * 100;
@@ -290,10 +290,10 @@ function renderData() {
     document.getElementById("skip").innerText = skip;
     document.getElementById("fail").innerText = fail;
     document.getElementById("total").innerText = total;
-    document.getElementById("policies").innerText = policies;
+    document.getElementById("rules").innerText = rules;
 
     
-    details.replaceChildren(...policyItems);
+    details.replaceChildren(...ruleItems);
     if (total === 0) {
         details.replaceChildren(createSpan("Whoops! Nothing here yet", "pico-color-gray"));
     }
@@ -308,7 +308,7 @@ async function refreshData() {
 function init() {
     document.data = {
         "testsuites": [],
-        "policies": []
+        "rules": []
     }
     //document.data = exampleData;
     renderData();

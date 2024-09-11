@@ -26,7 +26,7 @@ public class MxLint
         _logService = logService;
 
         CachePath = Path.Combine(Model.Root.DirectoryPath, ".mendix-cache");
-        ExecutablePath = Path.Combine(CachePath, "mxlint-cli-local.exe");
+        ExecutablePath = Path.Combine(CachePath, "mxlint-local.exe");
         LintResultsPath = Path.Combine(CachePath, "lint-results.json");
         RulesPath = Path.Combine(CachePath, "rules");
         CLIBaseURL = "https://github.com/mxlint/mxlint-cli/releases/download/" + CLIVersion + "/";
@@ -99,7 +99,7 @@ public class MxLint
 
         using (var client = new HttpClient())
         {
-            string DownloadURL = CLIBaseURL + "mxlint-cli-" + CLIVersion + "-windows-amd64.exe";
+            string DownloadURL = CLIBaseURL + "mxlint-" + CLIVersion + "-windows-amd64.exe";
             _logService.Info("Downloading CLI from " + DownloadURL);
             var response = await client.GetAsync(DownloadURL);
             using (var fs = new FileStream(ExecutablePath, FileMode.CreateNew))
