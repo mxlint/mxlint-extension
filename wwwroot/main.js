@@ -159,10 +159,15 @@ function createSpan(text, className) {
 function renderTestCase(testcase) {
     let tr = document.createElement("tr");
     let tdSeverity = document.createElement("td");
+    tdSeverity.setAttribute("data-label", "Severity");
     let tdDocument = document.createElement("td");
+    tdDocument.setAttribute("data-label", "Document");
     let tdRuleName = document.createElement("td");
+    tdRuleName.setAttribute("data-label", "Rule");
     let tdCategory = document.createElement("td");
+    tdCategory.setAttribute("data-label", "Category");
     let tdStatus = document.createElement("td");
+    tdStatus.setAttribute("data-label", "Status");
 
     let details = document.createElement("details");
     let summary = document.createElement("summary");
