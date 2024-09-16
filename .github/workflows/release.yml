@@ -19,7 +19,7 @@ jobs:
       run: dotnet --version
 
     - name: Compile
-      run: 	make
+      run: make
 
     - name: Zip rules directory
       run: |
@@ -41,14 +41,14 @@ jobs:
           core.setOutput('upload_url', release.data.upload_url);
           core.setOutput('tag_name', release.data.tag_name);
 
-      - name: Upload Release Asset (ZIP)
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT }}
-        with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./extension.zip
-          asset_name: MxLintExtension-${{ steps.get_release.outputs.tag_name}}.zip
-          asset_content_type: application/zip
+    - name: Upload Release Asset (ZIP)
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.PAT }}
+      with:
+        upload_url: ${{ steps.get_release.outputs.upload_url }}
+        asset_path: ./extension.zip
+        asset_name: MxLintExtension-${{ steps.get_release.outputs.tag_name}}.zip
+        asset_content_type: application/zip
 
 
