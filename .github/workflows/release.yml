@@ -24,14 +24,22 @@ jobs:
     - name: Zip rules directory
       run: |
         mkdir MxLintExtension
-        cp bin/Debug/net8.0/* MxLintExtension
+        cp -r bin/Debug/net8.0/* MxLintExtension
         zip -r extension.zip MxLintExtension
 
     - name: Get release
       id: get_release
-      run: |
-        echo "tag_name=v1.0.0" >> $GITHUB_OUTPUT
-        echo "upload_url=test" >> $GITHUB_OUTPUT
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: |
+          const release = await github.rest.repos.getRelease({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            release_id: context.payload.release.id
+          });
+          core.setOutput('upload_url', release.data.upload_url);
+          core.setOutput('tag_name', release.data.tag_name);
 
       - name: Upload Release Asset (ZIP)
         uses: actions/upload-release-asset@v1
