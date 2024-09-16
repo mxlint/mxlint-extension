@@ -124,7 +124,6 @@ function getRule(path, rules) {
 }
 
 function flattenTestCase(testsuite, testcase, rules) {
-    console.log(testsuite.name);
     const rule = getRule(testsuite.name, rules);
     let status = "pass";
     let statusClass = "pico-background-cyan";
