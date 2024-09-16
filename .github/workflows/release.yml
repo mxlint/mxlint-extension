@@ -27,11 +27,11 @@ jobs:
         cp bin/Debug/net8.0/* MxLintExtension
         zip -r extension.zip MxLintExtension
 
-    - name: Get current tag version
+    - name: Get release
+      id: get_release
       run: |
         echo "tag_name=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
         echo "upload_url=${{ github.event.release.upload_url }}" >> $GITHUB_OUTPUT
-      id: get_release
 
       - name: Upload Release Asset (ZIP)
         uses: actions/upload-release-asset@v1
