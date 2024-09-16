@@ -30,8 +30,8 @@ jobs:
     - name: Get release
       id: get_release
       run: |
-        echo "tag_name=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-        echo "upload_url=${{ github.event.release.upload_url }}" >> $GITHUB_OUTPUT
+        echo "tag_name=v1.0.0" >> $GITHUB_OUTPUT
+        echo "upload_url=test" >> $GITHUB_OUTPUT
 
       - name: Upload Release Asset (ZIP)
         uses: actions/upload-release-asset@v1
