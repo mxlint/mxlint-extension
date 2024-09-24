@@ -332,7 +332,7 @@
       "testcases": []
     }
   ],
-  "policies": [
+  "rules": [
     {
       "title": "Business apps must always require login",
       "description": "No anonymous means every user must have valid login session or credentials",
