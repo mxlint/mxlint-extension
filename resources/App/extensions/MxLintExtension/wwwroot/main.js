@@ -1,91 +1,4 @@
-let exampleData = {
-    "testsuites": [
-        {
-            "name": "C:\\Users\\ops\\source\\repos\\cinaq\\mendix-cli-extension\\resources\\App\\.mendix-cache\\policies\\001_project_settings\\001_0001_anonymous_disabled.rego",
-            "tests": 1,
-            "failures": 0,
-            "skipped": 0,
-            "time": 0.0025816,
-            "testcases": [
-                {
-                    "name": "modelsource\\Security$ProjectSecurity.yaml",
-                    "time": 0.0025816
-                }
-            ]
-        },
-        {
-            "name": "C:\\Users\\ops\\source\\repos\\cinaq\\mendix-cli-extension\\resources\\App\\.mendix-cache\\policies\\001_project_settings\\001_0002_demo_users_disabled.rego",
-            "tests": 1,
-            "failures": 1,
-            "skipped": 0,
-            "time": 0.0020738,
-            "testcases": [
-                {
-                    "name": "modelsource\\Security$ProjectSecurity.yaml",
-                    "time": 0.0020738,
-                    "failure": {
-                        "message": "[HIGH, Security, 4098] Business apps should disable demo users",
-                        "type": "AssertionError"
-                    }
-                }
-            ]
-        },
-        {
-            "name": "C:\\Users\\ops\\source\\repos\\cinaq\\mendix-cli-extension\\resources\\App\\.mendix-cache\\policies\\001_project_settings\\001_0003_security_checks.rego",
-            "tests": 1,
-            "failures": 0,
-            "skipped": 0,
-            "time": 0.0025866,
-            "testcases": [
-                {
-                    "name": "modelsource\\Security$ProjectSecurity.yaml",
-                    "time": 0.0025866
-                }
-            ]
-        }
-    ],
-    "rules": [
-        {
-            "title": "Business apps must always require login",
-            "description": "No anonymous means every user must have valid login session or credentials",
-            "category": "Security",
-            "severity": "HIGH",
-            "ruleNumber": "001_0001",
-            "remediation": "Disable anonymous/guest access in Project Security",
-            "ruleName": "AnonymousDisabled",
-            "path": "C:\\Users\\ops\\source\\repos\\cinaq\\mendix-cli-extension\\resources\\App\\.mendix-cache\\policies\\001_project_settings\\001_0001_anonymous_disabled.rego",
-            "skipReason": "",
-            "pattern": "Security$ProjectSecurity.yaml",
-            "packageName": "app.mendix.project_settings.anonymous_disabled"
-        },
-        {
-            "title": "Business apps should disable demo users",
-            "description": "No demo users",
-            "category": "Security",
-            "severity": "HIGH",
-            "ruleNumber": "001_0002",
-            "remediation": "Disable demo users in Project Security",
-            "ruleName": "DemoUsersDisabled",
-            "path": "C:\\Users\\ops\\source\\repos\\cinaq\\mendix-cli-extension\\resources\\App\\.mendix-cache\\policies\\001_project_settings\\001_0002_demo_users_disabled.rego",
-            "skipReason": "",
-            "pattern": "Security$ProjectSecurity.yaml",
-            "packageName": "app.mendix.project_settings.demo_users_disabled"
-        },
-        {
-            "title": "Ensure security rules are active",
-            "description": "Any serious app needs entity access security configured",
-            "category": "Security",
-            "severity": "MEDIUM",
-            "ruleNumber": "001_0003",
-            "remediation": "Set Security check to production in Project Security",
-            "ruleName": "SecurityChecks",
-            "path": "C:\\Users\\ops\\source\\repos\\cinaq\\mendix-cli-extension\\resources\\App\\.mendix-cache\\policies\\001_project_settings\\001_0003_security_checks.rego",
-            "skipReason": "",
-            "pattern": "Security$ProjectSecurity.yaml",
-            "packageName": "app.mendix.project_settings.security_checks"
-        },
-    ]
-};
+
 document.filter = ["HIGH", "MEDIUM", "LOW"];
 
 function postMessage(message, data) {
@@ -93,6 +6,7 @@ function postMessage(message, data) {
         console.log("Missing webview ", message, data);
         return;
     }
+    console.log("PostMessage", message, data);
     window.chrome.webview.postMessage({ message, data });
 }
 
@@ -155,12 +69,33 @@ function createSpan(text, className) {
     return span;
 }
 
+function createLink(text, href, obj) {
+    let a = document.createElement("a");
+    a.innerText = text;
+    a.href = href;
+    if (obj !== undefined) {
+        a.addEventListener('click', (e) => {
+            postMessage("openDocument", {
+                document: obj.docname,
+                type: obj.doctype,
+                module: obj.module
+            });
+            e.preventDefault();
+        });
+    }
+    return a;
+}
+
 function renderTestCase(testcase) {
     let tr = document.createElement("tr");
     let tdSeverity = document.createElement("td");
     tdSeverity.setAttribute("data-label", "Severity");
     let tdDocument = document.createElement("td");
     tdDocument.setAttribute("data-label", "Document");
+    let tdModule = document.createElement("td");
+    tdModule.setAttribute("data-label", "Module");
+    let tdDocType = document.createElement("td");
+    tdDocType.setAttribute("data-label", "Type");
     let tdRuleName = document.createElement("td");
     tdRuleName.setAttribute("data-label", "Rule");
     let tdCategory = document.createElement("td");
@@ -170,7 +105,7 @@ function renderTestCase(testcase) {
 
     let details = document.createElement("details");
     let summary = document.createElement("summary");
-    summary.innerText = testcase.name;
+    summary.innerText = testcase.rule.ruleName;
     details.appendChild(summary);
 
     let pDescription = document.createElement("p");
@@ -214,15 +149,30 @@ function renderTestCase(testcase) {
     spanStatus.innerText = testcase.status;
     spanStatus.classList.add("label");
     spanStatus.classList.add(testcase.statusClass);
+    spanStatus.addEventListener('click', () => {
+        postMessage("openDocument", { document: testcase.name });
+    });
 
     tdSeverity.replaceChildren(createSpan(testcase.rule.severity));
-    tdDocument.replaceChildren(details);
-    tdRuleName.replaceChildren(createSpan(testcase.rule.ruleName));
+
+    if (testcase.docname === "Metadata" && testcase.doctype === "") {
+        tdDocument.replaceChildren(createSpan(testcase.docname));
+    } else if (testcase.docname === "Security$ProjectSecurity" && testcase.doctype === "") {
+        tdDocument.replaceChildren(createSpan(testcase.docname));
+    } else {
+        tdDocument.replaceChildren(createLink(testcase.docname, "#", testcase));
+    }
+
+    tdRuleName.replaceChildren(details);
     tdCategory.replaceChildren(createSpan(testcase.rule.category));
+    tdDocType.replaceChildren(createSpan(testcase.doctype));
+    tdModule.replaceChildren(createSpan(testcase.module));
     tdStatus.replaceChildren(spanStatus);
 
     tr.appendChild(tdSeverity);
     tr.appendChild(tdDocument);
+    tr.appendChild(tdModule);
+    tr.appendChild(tdDocType);
     tr.appendChild(tdRuleName);
     tr.appendChild(tdCategory);
     tr.appendChild(tdStatus);
@@ -261,6 +211,26 @@ function renderData() {
             } else {
                 ts.severity_code = 3;
             }
+            const tokens = ts.name.split("\\");
+            //console.log(tokens);
+            ts.module = "";
+            if (tokens.length > 1) {
+                ts.module = tokens[0];
+                const last = tokens.length - 1;
+                const rest = tokens.slice(1, tokens.length);
+                //console.log(rest);
+                if (rest.length > 1) {
+                    ts.docname = rest.join("/").split('.')[0];
+                    ts.doctype = tokens[last].split('.')[1];
+                } else {
+                    ts.docname = tokens[last].split('.')[0]
+                    ts.doctype = "";
+                }
+            } else {
+                ts.docname = ts.name.split('.')[0];
+                ts.doctype = "";
+
+            }
             all_testcases.push(ts);
         }
     }
@@ -291,25 +261,48 @@ function renderData() {
     document.getElementById("total").innerText = total;
     document.getElementById("rules").innerText = rules;
 
-    
-    details.replaceChildren(...ruleItems);
+
     if (total === 0) {
-        details.replaceChildren(createSpan("Whoops! Nothing here yet", "pico-color-gray"));
+        console.log("No testcases found");
+    } else {
+        details.replaceChildren(...ruleItems);
     }
 }
 
+
+function djb2(str) {
+    let hash = 5381;
+    for (let i = 0; i < str.length; i++) {
+        hash = (hash * 33) ^ str.charCodeAt(i);
+    }
+    return hash;
+}
+
 async function refreshData() {
-    let response = await fetch("./api");
+    let response;
+    if (window.chrome.webview === undefined) {
+        response = await fetch("./api-sample.json");
+    } else {
+        response = await fetch("./api");
+    }
     document.data = await response.json();
-    renderData();
+    const newHash = djb2(response.text);
+    if (document.hash !== newHash) {
+        // console.log("Data changed");
+        renderData();
+    }
+    document.hash = newHash;
 }
 
 function init() {
+    document.hash = "";
     document.data = {
         "testsuites": [],
         "rules": []
     }
-    //document.data = exampleData;
+    if (window.chrome.webview === undefined) {
+        refreshData();
+    }
     renderData();
 }
 
@@ -330,5 +323,6 @@ init();
 postMessage("MessageListenerRegistered");
 setInterval(async () => {
     postMessage("refreshData");
-    //await refreshData();
+
+    await refreshData();
 }, 1000);

@@ -2,7 +2,7 @@ $Type: Security$ProjectSecurity
 AdminPassword: "1"
 AdminUserName: MxAdmin
 AdminUserRole: Administrator
-CheckSecurity: false
+CheckSecurity: true
 DemoUsers:
 - $Type: Security$DemoUserImpl
   Entity: Administration.Account

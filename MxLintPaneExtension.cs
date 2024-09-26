@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.Composition;
 using Mendix.StudioPro.ExtensionsAPI.Services;
+using Mendix.StudioPro.ExtensionsAPI.UI.Services;
 using Mendix.StudioPro.ExtensionsAPI.UI.DockablePane;
 
 namespace com.cinaq.MxLintExtension;
@@ -11,15 +12,17 @@ public class MxLintPaneExtension : DockablePaneExtension
 
     public const string ID = "com-cinaq-mxlint-extension";
     public override string Id => ID;
+    private readonly IDockingWindowService _dockingWindowService;
 
     [ImportingConstructor]
-    public MxLintPaneExtension(ILogService logService)
+    public MxLintPaneExtension(IDockingWindowService dockingWindowService, ILogService logService)
     {
         _logService = logService;
+        _dockingWindowService = dockingWindowService;
     }
 
     public override DockablePaneViewModelBase Open()
     {
-        return new MxLintPaneExtensionWebViewModel(new Uri(Path.Combine(WebServerBaseUrl.AbsoluteUri,"wwwroot")), () => CurrentApp, _logService) { Title = "MxLint" };
+        return new MxLintPaneExtensionWebViewModel(new Uri(Path.Combine(WebServerBaseUrl.AbsoluteUri,"wwwroot")), () => CurrentApp, _logService, _dockingWindowService) { Title = "MxLint" };
     }
 }
