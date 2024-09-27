@@ -286,9 +286,10 @@ async function refreshData() {
         response = await fetch("./api");
     }
     document.data = await response.json();
-    const newHash = djb2(response.text);
+    let text = JSON.stringify(document.data);
+    const newHash = djb2(text);
     if (document.hash !== newHash) {
-        // console.log("Data changed");
+        console.log("Data changed");
         renderData();
     }
     document.hash = newHash;
