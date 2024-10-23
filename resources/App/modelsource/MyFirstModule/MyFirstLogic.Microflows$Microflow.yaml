@@ -5,8 +5,11 @@ ApplyEntityAccess: false
 ConcurrencyErrorMicroflow: ""
 ConcurrenyErrorMessage:
   $Type: Texts$Text
-  Items: null
-Documentation: ""
+  Items:
+  - $Type: Texts$Translation
+    LanguageCode: en_US
+    Text: ""
+Documentation: Cool bro!
 Excluded: false
 ExportLevel: Hidden
 MainFunction:
