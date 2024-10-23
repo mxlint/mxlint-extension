@@ -5,7 +5,7 @@ Appearance:
   Class: ""
   DesignProperties: null
   DynamicClasses: ""
-  Style: 'background: orange;'
+  Style: 'background: gray;'
 CanvasHeight: 600
 CanvasWidth: 1198
 Documentation: ""

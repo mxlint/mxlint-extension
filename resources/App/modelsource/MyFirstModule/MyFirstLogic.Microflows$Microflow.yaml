@@ -9,7 +9,7 @@ ConcurrenyErrorMessage:
   - $Type: Texts$Translation
     LanguageCode: en_US
     Text: ""
-Documentation: Cool bro!
+Documentation: Awesome!
 Excluded: false
 ExportLevel: Hidden
 MainFunction:
