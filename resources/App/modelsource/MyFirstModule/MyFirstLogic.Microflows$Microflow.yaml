@@ -9,7 +9,7 @@ ConcurrenyErrorMessage:
   - $Type: Texts$Translation
     LanguageCode: en_US
     Text: ""
-Documentation: Cool bro!
+Documentation: Awesome!
 Excluded: false
 ExportLevel: Hidden
 MainFunction:
@@ -44,6 +44,27 @@ MainFunction:
     NewCaseValue:
       $Type: Microflows$NoCase
   ID: cD35k6/3SEq/Gr6T2SEBMA==
+- Attributes:
+    $Type: Microflows$ActionActivity
+    Action:
+      $Type: Microflows$CreateVariableAction
+      ErrorHandlingType: Rollback
+      InitialValue: "false"
+      VariableName: Variable
+      VariableType:
+        $Type: DataTypes$BooleanType
+    AutoGenerateCaption: true
+    BackgroundColor: Default
+    Caption: Activity
+    Disabled: false
+    Documentation: ""
+  ID: FfDps2vMIUyf7ELEaixhjw==
+- Attributes:
+    $Type: Microflows$SequenceFlow
+    IsErrorHandler: false
+    NewCaseValue:
+      $Type: Microflows$NoCase
+  ID: g9P10f9ytEKfMT2g9WJv5g==
 - Attributes:
     $Type: Microflows$LoopedActivity
     Documentation: ""
