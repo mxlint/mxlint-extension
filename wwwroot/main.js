@@ -238,7 +238,7 @@ function renderData() {
     let testcases_filtered = all_testcases.filter((ts) => document.filter.includes(ts.rule.severity));
 
     let testcases_sorted = testcases_filtered.sort((a, b) => {
-        return a.severity_code - b.severity_code || a.status_code - b.status_code;
+        return a.status_code - b.status_code || a.severity_code - b.severity_code;
     });
 
     for (const ts of testcases_sorted) {

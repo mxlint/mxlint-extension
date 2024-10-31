@@ -16,7 +16,7 @@ DemoUsers:
   UserName: demo_user
   UserRoles:
   - User
-EnableDemoUsers: true
+EnableDemoUsers: false
 EnableGuestAccess: false
 FileDocumentAccess:
   $Type: Security$FileDocumentAccessRuleContainer
