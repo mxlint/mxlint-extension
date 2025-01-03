@@ -1,6 +1,6 @@
 
 document.filter = ["HIGH", "MEDIUM", "LOW"];
-
+const filtersAppliedKey = 'filtersApplied';
 function postMessage(message, data) {
     if (window.chrome.webview === undefined) {
         console.log("Missing webview ", message, data);
@@ -179,6 +179,26 @@ function renderTestCase(testcase) {
     return tr;
 }
 
+function allowTestCaseRender(testCase) {
+    const filterContent = document.getElementById('filter-content');
+    let filtersApplied = filterContent.getAttribute(filtersAppliedKey);
+    if (!filtersApplied) {
+        return true;
+    }
+
+    let allow = true;
+
+    //check severity
+    filtersApplied = JSON.parse(filtersApplied);
+    let severityFilters = filtersApplied['Severity'];
+    //if (severityFiltersApplied && severityFiltersApplied != []) {
+    //    allow = severityFiltersApplied.includes(testCase.rule.severity);
+    //}
+    allow = severityFilters.length === 0 || severityFilters.includes(testCase.rule.severity);
+
+    return allow;
+}
+
 function renderData() {
     let details = document.getElementById("testcases");
 
@@ -194,44 +214,46 @@ function renderData() {
         let testcases = testsuite.testcases;
         for (const testcase of testcases) {
             let ts = flattenTestCase(testsuite, testcase, data.rules);
-            if (ts.status === "fail") {
-                fail++;
-                ts.status_code = 1;
-            } else if (ts.status === "skip") {
-                skip++;
-                ts.status_code = 2;
-            } else {
-                pass++;
-                ts.status_code = 3;
-            }
-            if (ts.rule.severity === "HIGH") {
-                ts.severity_code = 1;
-            } else if (ts.rule.severity === "MEDIUM") {
-                ts.severity_code = 2;
-            } else {
-                ts.severity_code = 3;
-            }
-            const tokens = ts.name.split("\\");
-            //console.log(tokens);
-            ts.module = "";
-            if (tokens.length > 1) {
-                ts.module = tokens[0];
-                const last = tokens.length - 1;
-                const rest = tokens.slice(1, tokens.length);
-                //console.log(rest);
-                if (rest.length > 1) {
-                    ts.docname = rest.join("/").split('.')[0];
-                    ts.doctype = tokens[last].split('.')[1];
+            if (allowTestCaseRender(ts)) {
+                if (ts.status === "fail") {
+                    fail++;
+                    ts.status_code = 1;
+                } else if (ts.status === "skip") {
+                    skip++;
+                    ts.status_code = 2;
                 } else {
-                    ts.docname = tokens[last].split('.')[0]
-                    ts.doctype = "";
+                    pass++;
+                    ts.status_code = 3;
                 }
-            } else {
-                ts.docname = ts.name.split('.')[0];
-                ts.doctype = "";
+                if (ts.rule.severity === "HIGH") {
+                    ts.severity_code = 1;
+                } else if (ts.rule.severity === "MEDIUM") {
+                    ts.severity_code = 2;
+                } else {
+                    ts.severity_code = 3;
+                }
+                const tokens = ts.name.split("\\");
+                //console.log(tokens);
+                ts.module = "";
+                if (tokens.length > 1) {
+                    ts.module = tokens[0];
+                    const last = tokens.length - 1;
+                    const rest = tokens.slice(1, tokens.length);
+                    //console.log(rest);
+                    if (rest.length > 1) {
+                        ts.docname = rest.join("/").split('.')[0];
+                        ts.doctype = tokens[last].split('.')[1];
+                    } else {
+                        ts.docname = tokens[last].split('.')[0]
+                        ts.doctype = "";
+                    }
+                } else {
+                    ts.docname = ts.name.split('.')[0];
+                    ts.doctype = "";
 
+                }
+                all_testcases.push(ts);
             }
-            all_testcases.push(ts);
         }
     }
 
@@ -264,11 +286,35 @@ function renderData() {
 
     if (total === 0) {
         console.log("No testcases found");
-    } else {
-        details.replaceChildren(...ruleItems);
     }
+    //else {
+        details.replaceChildren(...ruleItems);
+    //}
 }
 
+function applyFilter(e) {
+    const filterContent = document.getElementById('filter-content');
+    const filterType = e.getAttribute('parentFilter');
+
+    // Initialize or retrieve filtersApplied
+    let filtersApplied = filterContent.hasAttribute(filtersAppliedKey) ? JSON.parse(filterContent.getAttribute(filtersAppliedKey)) : {};
+
+    // Ensure the filterType array exists
+    filtersApplied[filterType] = filtersApplied[filterType] || [];
+
+    // Add or remove the filter value based on checkbox status
+    e.checked
+        ? filtersApplied[filterType].push(e.value)
+        : filtersApplied[filterType] = filtersApplied[filterType].filter(item => item !== e.value)
+
+    //let filterHash = djb2(JSON.stringify(filtersApplied));
+    //filterContent['hash'] = filterHash;
+
+    // Update the attribute and notify
+    filterContent.setAttribute(filtersAppliedKey, JSON.stringify(filtersApplied));
+    console.log("Filters changed");
+    renderData();
+}
 
 function djb2(str) {
     let hash = 5381;
@@ -319,6 +365,23 @@ document.getElementById("toggleDebug").addEventListener("click", () => {
 
 });
 
+document.getElementById("btn-filter").addEventListener("click", () => {
+    let filterContent = document.getElementById("filter-content")
+    let hidden = filterContent.classList.contains("hidden");
+    if (hidden) {
+        filterContent.classList.remove("hidden");
+    } else {
+        filterContent.classList.add("hidden");
+    }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    const checkboxes = document.querySelectorAll(".filter-checkbox");
+    checkboxes.forEach((checkbox) => {
+        checkbox.addEventListener("change", (event) => applyFilter(event.target));
+    });
+});
+
 init();
 
 postMessage("MessageListenerRegistered");
@@ -327,3 +390,4 @@ setInterval(async () => {
 
     await refreshData();
 }, 1000);
+

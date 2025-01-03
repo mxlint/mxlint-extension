@@ -112,10 +112,10 @@ article {
     /* Original: var(--pico-border-radius) */
 }
 
-article>footer {
-    border-radius: calc(var(--pico-border-radius) * 2);
-    /* Original: var(--pico-border-radius) */
-}
+    article > footer {
+        border-radius: calc(var(--pico-border-radius) * 2);
+        /* Original: var(--pico-border-radius) */
+    }
 
 
 .label {
@@ -138,9 +138,9 @@ td, th {
     padding: 0.5em 0;
 }
 
-td > * , th > * {
-    padding: 0 0.5em;
-}
+    td > *, th > * {
+        padding: 0 0.5em;
+    }
 
 .hidden {
     display: none;
@@ -184,10 +184,49 @@ a {
     display: block;
     float: left;
 }
-.box > .title {
-    font-size: 0.9em;
-    clear: right
+
+    .box > .title {
+        font-size: 0.9em;
+        clear: right
+    }
+
+    .box > .value {
+        font-size: 1.5em;
+    }
+
+#btn-filter {
+    background-color: DodgerBlue;
+    border: none;
+    color: white;
+    padding: 12px 16px;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: end;
+    transition: 1s;
 }
-.box > .value {
-    font-size: 1.5em;
+
+#filterOuter {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+#filter-content{
+    padding: 10px;
+}
+
+fieldset {
+    border: 1px solid #7d7d7d;
+    border-radius: 5px;
+}
+
+fieldset div {
+    display: inline-block;
+    width: 30%;
+    margin: 5px;
+    text-align: center;
+}
+
+fieldset legend {
+    padding: 0 10px;
 }
