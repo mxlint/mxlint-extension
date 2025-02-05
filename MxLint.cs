@@ -17,7 +17,7 @@ public class MxLint
     string CLIBaseURL;
     string RulesBaseURL;
     private readonly ILogService _logService;
-    private const string CLIVersion = "v3.1.0";
+    private const string CLIVersion = "v3.2.1";
     private const string RulesVersion = "v3.1.0";
 
     public MxLint(IModel model, ILogService logService)

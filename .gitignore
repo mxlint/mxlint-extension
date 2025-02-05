@@ -3,3 +3,4 @@ obj/
 .vs/
 resources/App/*.lock
 resources/App/.mendix-cache
+resources/App/extensions/MxLintExtension/*
