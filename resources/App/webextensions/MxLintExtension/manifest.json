@@ -1,0 +1,11 @@
+{
+  "mendixComponent": {
+    "entryPoints": {
+      "main": "main.js",
+      "ui": {
+        "settingsTab": "settingsTab.js",
+        "mainDock": "mainDock.js"
+      }
+    }
+  }
+}
