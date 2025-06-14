@@ -45,6 +45,7 @@ public class MxLint
         catch (Exception ex)
         {
             _logService.Error($"Error during linting process: {ex.Message}");
+            Console.WriteLine($"Error during linting process: {ex.Message}");
         }
     }
 
@@ -99,12 +100,30 @@ public class MxLint
 
         using (var client = new HttpClient())
         {
-            string DownloadURL = CLIBaseURL + "mxlint-" + CLIVersion + "-windows-amd64.exe";
+            string DownloadURL = "";
+            // check if windows or OSX
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT) {
+                DownloadURL = CLIBaseURL + "mxlint-" + CLIVersion + "-windows-amd64.exe";
+            } else {
+                DownloadURL = CLIBaseURL + "mxlint-" + CLIVersion + "-darwin-arm64";
+            }
             _logService.Info("Downloading CLI from " + DownloadURL);
             var response = await client.GetAsync(DownloadURL);
             using (var fs = new FileStream(ExecutablePath, FileMode.CreateNew))
             {
                 await response.Content.CopyToAsync(fs);
+                // set executable permission if OSX
+                if (Environment.OSVersion.Platform != PlatformID.Win32NT) {
+                    var chmodProcess = Process.Start(new ProcessStartInfo
+                    {
+                        FileName = "chmod",
+                        Arguments = "+x " + ExecutablePath,
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true
+                    });
+                    await chmodProcess.WaitForExitAsync();
+                }
             }
         }
     }

@@ -41,11 +41,10 @@ function flattenTestCase(testsuite, testcase, rules) {
     const rule = getRule(testsuite.name, rules);
     let status = "pass";
     let statusClass = "pico-background-cyan";
-    if (rule.skipReason != "") {
+    if (testcase.skip != "") {
         status = "skip";
         statusClass = "pico-background-slate";
-    }
-    if (testcase.failure) {
+    } else if (testcase.failure) {
         status = "fail";
         statusClass = "pico-background-orange";
     }
@@ -326,11 +325,9 @@ function djb2(str) {
 
 async function refreshData() {
     let response;
-    if (window.chrome.webview === undefined) {
-        response = await fetch("./api-sample.json");
-    } else {
-        response = await fetch("./api");
-    }
+    //response = await fetch("./api-sample.json");
+    response = await fetch("./api");
+    
     document.data = await response.json();
     let text = JSON.stringify(document.data);
     const newHash = djb2(text);

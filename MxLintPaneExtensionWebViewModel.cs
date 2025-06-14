@@ -32,15 +32,20 @@ public class MxLintPaneExtensionWebViewModel : WebViewDockablePaneViewModel
     {
         _webView = webView;
         webView.Address = new Uri(_baseUri, "index.html");
-        _logService.Info($"InitWebView: {_baseUri}");
+        // print message
+        Console.WriteLine($"InitWebView: {webView.Address}");
 
+        webView.ShowDevTools();
         webView.MessageReceived += HandleWebViewMessage;
-        //webView.ShowDevTools();
+
+        var currentApp = _getCurrentApp();
+        Refresh(currentApp);
     }
 
     private async void HandleWebViewMessage(object? sender, MessageReceivedEventArgs args)  // Change 2: Make sender nullable
     {
         var currentApp = _getCurrentApp();
+        Console.WriteLine($"HandleWebViewMessage: {args.Message}");
         if (currentApp == null) return;
 
         if (args.Message == "refreshData")
@@ -127,6 +132,7 @@ public class MxLintPaneExtensionWebViewModel : WebViewDockablePaneViewModel
     private async Task<bool> Refresh(IModel currentApp)
     {
         var mprFile = GetMprFile(currentApp.Root.DirectoryPath);
+        Console.WriteLine($"Refresh: {mprFile}");
         if (mprFile == null) return false;
 
         var lastWrite = File.GetLastWriteTime(mprFile);
@@ -139,6 +145,7 @@ public class MxLintPaneExtensionWebViewModel : WebViewDockablePaneViewModel
         _webView?.PostMessage("start");
         _lastUpdateTime = lastWrite;
         _logService.Info($"Changes detected: {_lastUpdateTime}");
+        Console.WriteLine($"Refresh: {_lastUpdateTime}");
 
         var cmd = new MxLint(currentApp, _logService);
         await cmd.Lint();
