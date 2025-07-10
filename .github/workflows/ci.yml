@@ -13,13 +13,17 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Setup dotnet
-      uses: actions/setup-dotnet@v3
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
       with:
-        dotnet-version: "8.x"
+        node-version: '20'
+        cache: 'npm'
 
-    - name: Display dotnet version
-      run: dotnet --version
+    - name: Install dependencies
+      run: npm ci
 
-    - name: Compile
-      run: 	make
+    - name: Build
+      run: npm run build
+
+    - name: Copy to resources
+      run: rsync -avz --delete dist/myextension/ resources/App/webextensions/mxlint
