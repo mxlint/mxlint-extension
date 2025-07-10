@@ -1,6 +1,9 @@
 bin/
 obj/
+dist/
 .vs/
 resources/App/*.lock
 resources/App/.mendix-cache
 resources/App/extensions/MxLintExtension/*
+.DS_Store
+node_modules/

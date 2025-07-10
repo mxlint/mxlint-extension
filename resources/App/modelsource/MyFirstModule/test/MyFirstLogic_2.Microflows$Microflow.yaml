@@ -9,18 +9,23 @@ ConcurrenyErrorMessage:
 Documentation: ""
 Excluded: false
 ExportLevel: Hidden
-MainFunction:
-- Attributes:
-    $Type: Microflows$StartEvent
-  ID: 5G1feUZ0KEqLb+AHowiM1Q==
-- Attributes:
-    $Type: Microflows$SequenceFlow
-    IsErrorHandler: false
-    NewCaseValue:
-      $Type: Microflows$NoCase
-  ID: fR6MfnO5oEu/fcJIRkUvqA==
-- Attributes:
-    $Type: Microflows$ActionActivity
+MarkAsUsed: false
+MicroflowActionInfo: null
+MicroflowReturnType:
+  $Type: DataTypes$VoidType
+Name: MyFirstLogic_2
+ObjectCollection:
+  $Type: Microflows$MicroflowObjectCollection
+  Objects:
+  - $Type: Microflows$StartEvent
+  - $Type: Microflows$EndEvent
+    Documentation: ""
+    ReturnValue: ""
+  - $Type: Microflows$Annotation
+    Caption: "Microflows are used to define server logic in your app.\r\n\r\n- For
+      client logic you can use Nanoflows\r\n- For business process logic you can use
+      Workflows\r\n\r\nDocumentation: https://docs.mendix.com/refguide/application-logic"
+  - $Type: Microflows$ActionActivity
     Action:
       $Type: Microflows$RetrieveAction
       ErrorHandlingType: Rollback
@@ -34,15 +39,7 @@ MainFunction:
     Caption: Activity
     Disabled: false
     Documentation: ""
-  ID: DPLnwz2UXk6XFs6p7evKaA==
-- Attributes:
-    $Type: Microflows$SequenceFlow
-    IsErrorHandler: false
-    NewCaseValue:
-      $Type: Microflows$NoCase
-  ID: qKGcyIU7x0avf5jA6Oo6SA==
-- Attributes:
-    $Type: Microflows$LoopedActivity
+  - $Type: Microflows$LoopedActivity
     Documentation: ""
     ErrorHandlingType: Rollback
     LoopSource:
@@ -52,40 +49,19 @@ MainFunction:
     ObjectCollection:
       $Type: Microflows$MicroflowObjectCollection
       Objects:
-      - $ID: 65XA16ccpkOWudNTUaSiDw==
-        $Type: Microflows$ActionActivity
+      - $Type: Microflows$ActionActivity
         Action:
-          $ID: iCfOlvrga0CpekmS6SuX5g==
           $Type: Microflows$ChangeAction
           ChangeVariableName: IteratorUserRole
           Commit: "Yes"
           ErrorHandlingType: Rollback
-          Items: []
+          Items: null
           RefreshInClient: true
         AutoGenerateCaption: true
         BackgroundColor: Default
         Caption: Activity
         Disabled: false
         Documentation: ""
-        RelativeMiddlePoint: 214;100
-        Size: 120;60
-  ID: Ue9SE51gWU2L0RwcFsdeuw==
-- Attributes:
-    $Type: Microflows$SequenceFlow
-    IsErrorHandler: false
-    NewCaseValue:
-      $Type: Microflows$NoCase
-  ID: LOrhCRNU1E69feYzrvjiqA==
-- Attributes:
-    $Type: Microflows$EndEvent
-    Documentation: ""
-    ReturnValue: ""
-  ID: vZdFrbJ1X0S6KMJQLOsKCw==
-MarkAsUsed: false
-MicroflowActionInfo: null
-MicroflowReturnType:
-  $Type: DataTypes$VoidType
-Name: MyFirstLogic_2
 ReturnVariableName: ""
 Url: ""
 UrlSearchParameters: null
