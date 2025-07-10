@@ -7,15 +7,15 @@ class Main implements IComponent {
             menuId: "mxlint.MainMenu",
             caption: "MxLint",
             subMenus: [
+                { menuId: "mxlint.ShowDockMenuItem", caption: "Open" },
                 { menuId: "mxlint.ShowTabMenuItem", caption: "Settings" },
-                { menuId: "mxlint.ShowDockMenuItem", caption: "Open Pane" },
             ],
         });
 
         const paneHandle = await studioPro.ui.panes.register(
             {
                 title: "MxLint",
-                initialPosition: "right",
+                initialPosition: "bottom",
             },
             {
                 componentName: "extension/mxlint",
@@ -29,7 +29,7 @@ class Main implements IComponent {
                 if (args.menuId === "mxlint.ShowTabMenuItem") {
                     studioPro.ui.tabs.open(
                         {
-                            title: "MxLint",
+                            title: "MxLint Settings",
                         },
                         {
                             componentName: "extension/mxlint",

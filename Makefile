@@ -1,3 +1,3 @@
 all:
 	npm run build
-	rsync -avz --delete dist/myextension/ resources/App/webextensions/MxLintExtension
+	rsync -avz --delete dist/myextension/ resources/App/webextensions/mxlint

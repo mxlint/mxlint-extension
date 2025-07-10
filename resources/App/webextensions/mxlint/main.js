@@ -78,14 +78,14 @@ class m {
       menuId: "mxlint.MainMenu",
       caption: "MxLint",
       subMenus: [
-        { menuId: "mxlint.ShowTabMenuItem", caption: "Settings" },
-        { menuId: "mxlint.ShowDockMenuItem", caption: "Open Pane" }
+        { menuId: "mxlint.ShowDockMenuItem", caption: "Open" },
+        { menuId: "mxlint.ShowTabMenuItem", caption: "Settings" }
       ]
     });
     const o = await i.ui.panes.register(
       {
         title: "MxLint",
-        initialPosition: "right"
+        initialPosition: "bottom"
       },
       {
         componentName: "extension/mxlint",
@@ -97,7 +97,7 @@ class m {
       (t) => {
         t.menuId === "mxlint.ShowTabMenuItem" ? i.ui.tabs.open(
           {
-            title: "MxLint"
+            title: "MxLint Settings"
           },
           {
             componentName: "extension/mxlint",
