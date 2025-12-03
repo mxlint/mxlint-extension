@@ -41,7 +41,7 @@ function flattenTestCase(testsuite, testcase, rules) {
     const rule = getRule(testsuite.name, rules);
     let status = "pass";
     let statusClass = "pico-background-cyan";
-    if (rule.skipReason != "") {
+    if (testcase.skipped) {
         status = "skip";
         statusClass = "pico-background-slate";
     }
