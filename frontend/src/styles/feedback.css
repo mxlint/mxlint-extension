@@ -1,0 +1,450 @@
+/* UI Feedback Components - Toast, Progress, Spinner, Skeleton, EmptyState */
+
+/* ========== Toast ========== */
+.ui-toast-container {
+  position: fixed;
+  z-index: var(--ui-z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-spacing-sm);
+  pointer-events: none;
+  max-width: 400px;
+  width: 100%;
+  padding: var(--ui-spacing-lg);
+}
+
+.ui-toast-container--top-left {
+  top: 0;
+  left: 0;
+}
+
+.ui-toast-container--top-center {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.ui-toast-container--top-right {
+  top: 0;
+  right: 0;
+}
+
+.ui-toast-container--bottom-left {
+  bottom: 0;
+  left: 0;
+  flex-direction: column-reverse;
+}
+
+.ui-toast-container--bottom-center {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  flex-direction: column-reverse;
+}
+
+.ui-toast-container--bottom-right {
+  bottom: 0;
+  right: 0;
+  flex-direction: column-reverse;
+}
+
+.ui-toast {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-spacing-sm);
+  padding: var(--ui-spacing-md) var(--ui-spacing-lg);
+  background-color: var(--ui-bg-secondary);
+  border: 1px solid var(--ui-border-primary);
+  border-radius: var(--ui-radius-md);
+  box-shadow: var(--ui-shadow-lg);
+  pointer-events: auto;
+  animation: ui-toast-enter 0.2s ease-out;
+  min-width: 280px;
+}
+
+.ui-toast--exiting {
+  animation: ui-toast-exit 0.15s ease-in forwards;
+}
+
+@keyframes ui-toast-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes ui-toast-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+}
+
+.ui-toast__icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-top: 0;
+}
+
+.ui-toast__icon--info {
+  color: var(--ui-color-info);
+}
+
+.ui-toast__icon--success {
+  color: var(--ui-color-success);
+}
+
+.ui-toast__icon--warning {
+  color: var(--ui-color-warning);
+}
+
+.ui-toast__icon--error {
+  color: var(--ui-color-error);
+}
+
+.ui-toast__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.ui-toast__title {
+  font-weight: 600;
+  color: var(--ui-text-bright);
+  margin-bottom: 2px;
+  font-size: var(--ui-font-base);
+}
+
+.ui-toast__message {
+  color: var(--ui-text-primary);
+  font-size: var(--ui-font-base);
+  line-height: 1.4;
+}
+
+.ui-toast__action {
+  margin-top: var(--ui-spacing-sm);
+}
+
+.ui-toast__action-btn {
+  padding: 4px 8px;
+  background: transparent;
+  border: 1px solid var(--ui-border-secondary);
+  border-radius: var(--ui-radius-sm);
+  color: var(--ui-text-primary);
+  font-size: var(--ui-font-sm);
+  cursor: pointer;
+  transition: background-color var(--ui-transition-fast);
+}
+
+.ui-toast__action-btn:hover {
+  background-color: var(--ui-bg-elevated);
+}
+
+.ui-toast__close {
+  flex-shrink: 0;
+  padding: 4px;
+  background: transparent;
+  border: none;
+  color: var(--ui-text-secondary);
+  cursor: pointer;
+  border-radius: var(--ui-radius-sm);
+  transition: color var(--ui-transition-fast),
+              background-color var(--ui-transition-fast);
+}
+
+.ui-toast__close:hover {
+  color: var(--ui-text-primary);
+  background-color: var(--ui-bg-elevated);
+}
+
+/* ========== Progress ========== */
+.ui-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-spacing-xs);
+}
+
+.ui-progress__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ui-progress__label {
+  font-size: var(--ui-font-sm);
+  color: var(--ui-text-primary);
+}
+
+.ui-progress__value {
+  font-size: var(--ui-font-sm);
+  color: var(--ui-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Linear Progress */
+.ui-progress__track {
+  width: 100%;
+  background-color: var(--ui-bg-elevated);
+  border-radius: var(--ui-radius-full);
+  overflow: hidden;
+}
+
+.ui-progress__track--sm {
+  height: 4px;
+}
+
+.ui-progress__track--md {
+  height: 8px;
+}
+
+.ui-progress__track--lg {
+  height: 12px;
+}
+
+.ui-progress__fill {
+  height: 100%;
+  border-radius: var(--ui-radius-full);
+  transition: width var(--ui-transition-normal);
+}
+
+.ui-progress__fill--default {
+  background-color: var(--ui-color-primary);
+}
+
+.ui-progress__fill--error {
+  background-color: var(--ui-color-error);
+}
+
+.ui-progress__fill--warning {
+  background-color: var(--ui-color-warning);
+}
+
+.ui-progress__fill--success {
+  background-color: var(--ui-color-success);
+}
+
+.ui-progress__fill--info {
+  background-color: var(--ui-color-info);
+}
+
+.ui-progress__fill--indeterminate {
+  width: 30% !important;
+  animation: ui-progress-indeterminate 1.5s ease-in-out infinite;
+}
+
+@keyframes ui-progress-indeterminate {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+
+/* Circular Progress */
+.ui-progress--circular {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.ui-progress__circular {
+  transform: rotate(-90deg);
+}
+
+.ui-progress__circular-track {
+  fill: none;
+  stroke: var(--ui-bg-elevated);
+}
+
+.ui-progress__circular-fill {
+  fill: none;
+  stroke-linecap: round;
+  transition: stroke-dashoffset var(--ui-transition-normal);
+}
+
+.ui-progress__circular-fill--default {
+  stroke: var(--ui-color-primary);
+}
+
+.ui-progress__circular-fill--error {
+  stroke: var(--ui-color-error);
+}
+
+.ui-progress__circular-fill--warning {
+  stroke: var(--ui-color-warning);
+}
+
+.ui-progress__circular-fill--success {
+  stroke: var(--ui-color-success);
+}
+
+.ui-progress__circular-fill--info {
+  stroke: var(--ui-color-info);
+}
+
+.ui-progress__circular-fill--indeterminate {
+  animation: ui-progress-circular-rotate 2s linear infinite;
+}
+
+@keyframes ui-progress-circular-rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.ui-progress__circular-value {
+  position: absolute;
+  font-size: var(--ui-font-sm);
+  color: var(--ui-text-primary);
+  font-weight: 600;
+}
+
+/* ========== Skeleton ========== */
+.ui-skeleton {
+  background-color: var(--ui-bg-elevated);
+  border-radius: var(--ui-radius-sm);
+}
+
+.ui-skeleton--text {
+  height: 1em;
+  border-radius: var(--ui-radius-sm);
+}
+
+.ui-skeleton--circular {
+  border-radius: var(--ui-radius-full);
+}
+
+.ui-skeleton--rectangular {
+  border-radius: var(--ui-radius-md);
+}
+
+.ui-skeleton--pulse {
+  animation: ui-skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes ui-skeleton-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.ui-skeleton--wave {
+  position: relative;
+  overflow: hidden;
+}
+
+.ui-skeleton--wave::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.05),
+    transparent
+  );
+  animation: ui-skeleton-wave 1.5s ease-in-out infinite;
+}
+
+@keyframes ui-skeleton-wave {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.ui-skeleton-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-spacing-sm);
+}
+
+.ui-skeleton-text .ui-skeleton:last-child {
+  width: 80%;
+}
+
+/* ========== EmptyState ========== */
+.ui-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--ui-spacing-xl);
+}
+
+.ui-empty-state--sm {
+  padding: var(--ui-spacing-lg);
+}
+
+.ui-empty-state--lg {
+  padding: calc(var(--ui-spacing-xl) * 2);
+}
+
+.ui-empty-state__icon {
+  color: var(--ui-text-muted);
+  margin-bottom: var(--ui-spacing-md);
+}
+
+.ui-empty-state__icon--sm svg {
+  width: 32px;
+  height: 32px;
+}
+
+.ui-empty-state__icon--md svg {
+  width: 48px;
+  height: 48px;
+}
+
+.ui-empty-state__icon--lg svg {
+  width: 64px;
+  height: 64px;
+}
+
+.ui-empty-state__title {
+  font-size: var(--ui-font-lg);
+  font-weight: 600;
+  color: var(--ui-text-bright);
+  margin-bottom: var(--ui-spacing-xs);
+}
+
+.ui-empty-state--sm .ui-empty-state__title {
+  font-size: var(--ui-font-base);
+}
+
+.ui-empty-state--lg .ui-empty-state__title {
+  font-size: var(--ui-font-xl);
+}
+
+.ui-empty-state__description {
+  font-size: var(--ui-font-sm);
+  color: var(--ui-text-secondary);
+  max-width: 300px;
+  line-height: 1.5;
+}
+
+.ui-empty-state--lg .ui-empty-state__description {
+  max-width: 400px;
+}
+
+.ui-empty-state__action {
+  margin-top: var(--ui-spacing-lg);
+}

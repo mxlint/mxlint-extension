@@ -1,0 +1,92 @@
+/* UI Component Library - CSS Variables */
+
+:root {
+  /* Background colors */
+  --ui-bg-primary: #1e1e1e;
+  --ui-bg-secondary: #252526;
+  --ui-bg-tertiary: #2d2d2d;
+  --ui-bg-elevated: #3c3c3c;
+  --ui-bg-hover: #4c4c4c;
+  --ui-bg-active: #094771;
+  --ui-bg-input: #3c3c3c;
+
+  /* Text colors */
+  --ui-text-primary: #cccccc;
+  --ui-text-secondary: #858585;
+  --ui-text-muted: #6e7681;
+  --ui-text-bright: #dcdcdc;
+  --ui-text-disabled: #5a5a5a;
+
+  /* Border colors */
+  --ui-border-primary: #3c3c3c;
+  --ui-border-secondary: #4c4c4c;
+  --ui-border-focus: #0e639c;
+
+  /* Semantic colors */
+  --ui-color-error: #f14c4c;
+  --ui-color-error-bg: #5a3232;
+  --ui-color-error-text: #f48771;
+
+  --ui-color-warning: #cca700;
+  --ui-color-warning-bg: #4d3f1a;
+  --ui-color-warning-text: #cca700;
+
+  --ui-color-success: #4ec9b0;
+  --ui-color-success-bg: #264f48;
+  --ui-color-success-text: #4ec9b0;
+
+  --ui-color-info: #4fc1ff;
+  --ui-color-info-bg: #264f78;
+  --ui-color-info-text: #4fc1ff;
+
+  /* Primary/Brand colors */
+  --ui-color-primary: #0e639c;
+  --ui-color-primary-hover: #1177bb;
+  --ui-color-primary-text: #ffffff;
+
+  /* Danger colors */
+  --ui-color-danger: #f14c4c;
+  --ui-color-danger-hover: #d73a3a;
+  --ui-color-danger-text: #ffffff;
+
+  /* Spacing */
+  --ui-spacing-xs: 4px;
+  --ui-spacing-sm: 6px;
+  --ui-spacing-md: 10px;
+  --ui-spacing-lg: 16px;
+  --ui-spacing-xl: 20px;
+
+  /* Border radius */
+  --ui-radius-sm: 2px;
+  --ui-radius-md: 4px;
+  --ui-radius-lg: 8px;
+  --ui-radius-full: 9999px;
+
+  /* Font sizes */
+  --ui-font-xs: 10px;
+  --ui-font-sm: 11px;
+  --ui-font-md: 12px;
+  --ui-font-base: 13px;
+  --ui-font-lg: 15px;
+  --ui-font-xl: 16px;
+
+  /* Font family */
+  --ui-font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Transitions */
+  --ui-transition-fast: 0.1s ease;
+  --ui-transition-normal: 0.2s ease;
+  --ui-transition-slow: 0.3s ease;
+
+  /* Shadows */
+  --ui-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --ui-shadow-md: 0 4px 8px rgba(0, 0, 0, 0.4);
+  --ui-shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.5);
+
+  /* Z-index layers */
+  --ui-z-dropdown: 100;
+  --ui-z-sticky: 500;
+  --ui-z-modal: 1000;
+  --ui-z-toast: 1100;
+  --ui-z-tooltip: 1200;
+}
