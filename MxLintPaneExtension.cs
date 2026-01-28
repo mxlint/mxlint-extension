@@ -12,6 +12,7 @@ public class MxLintPaneExtension : DockablePaneExtension
 
     public const string ID = "com-cinaq-mxlint-extension";
     public override string Id => ID;
+    public override DockablePanePosition InitialPosition => DockablePanePosition.Bottom;
     private readonly IDockingWindowService _dockingWindowService;
 
     [ImportingConstructor]

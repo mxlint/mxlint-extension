@@ -1,0 +1,520 @@
+/* UI Primitives - Button, Spinner, Badge, Input, Tooltip, Card */
+
+/* ========== Button ========== */
+.ui-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ui-spacing-sm);
+  font-family: var(--ui-font-family);
+  font-weight: 500;
+  border: none;
+  border-radius: var(--ui-radius-sm);
+  cursor: pointer;
+  transition: background-color var(--ui-transition-fast),
+              border-color var(--ui-transition-fast),
+              opacity var(--ui-transition-fast);
+  white-space: nowrap;
+  position: relative;
+}
+
+.ui-button:focus-visible {
+  outline: 2px solid var(--ui-border-focus);
+  outline-offset: 2px;
+}
+
+.ui-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Button sizes */
+.ui-button--sm {
+  padding: 4px 8px;
+  font-size: var(--ui-font-sm);
+  height: 24px;
+}
+
+.ui-button--md {
+  padding: 6px 12px;
+  font-size: var(--ui-font-base);
+  height: 30px;
+}
+
+.ui-button--lg {
+  padding: 8px 16px;
+  font-size: var(--ui-font-lg);
+  height: 36px;
+}
+
+/* Button variants */
+.ui-button--primary {
+  background-color: var(--ui-color-primary);
+  color: var(--ui-color-primary-text);
+}
+
+.ui-button--primary:hover:not(:disabled) {
+  background-color: var(--ui-color-primary-hover);
+}
+
+.ui-button--secondary {
+  background-color: var(--ui-bg-elevated);
+  color: var(--ui-text-primary);
+}
+
+.ui-button--secondary:hover:not(:disabled) {
+  background-color: var(--ui-bg-hover);
+}
+
+.ui-button--danger {
+  background-color: var(--ui-color-danger);
+  color: var(--ui-color-danger-text);
+}
+
+.ui-button--danger:hover:not(:disabled) {
+  background-color: var(--ui-color-danger-hover);
+}
+
+.ui-button--ghost {
+  background-color: transparent;
+  color: var(--ui-text-primary);
+}
+
+.ui-button--ghost:hover:not(:disabled) {
+  background-color: var(--ui-bg-elevated);
+}
+
+/* Button full width */
+.ui-button--full-width {
+  width: 100%;
+}
+
+/* Button loading state */
+.ui-button--loading {
+  pointer-events: none;
+}
+
+.ui-button--loading .ui-button__content {
+  visibility: hidden;
+}
+
+.ui-button__spinner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.ui-button__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ui-button__icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.ui-button--sm .ui-button__icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.ui-button--lg .ui-button__icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ========== Spinner ========== */
+.ui-spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ui-spacing-sm);
+}
+
+.ui-spinner__circle {
+  animation: ui-spinner-rotate 1s linear infinite;
+  transform-origin: center;
+}
+
+.ui-spinner__circle circle {
+  stroke-linecap: round;
+  animation: ui-spinner-dash 1.5s ease-in-out infinite;
+}
+
+@keyframes ui-spinner-rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes ui-spinner-dash {
+  0% {
+    stroke-dasharray: 1, 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -124;
+  }
+}
+
+.ui-spinner--sm {
+  min-width: 16px;
+  min-height: 16px;
+}
+
+.ui-spinner--md {
+  min-width: 24px;
+  min-height: 24px;
+}
+
+.ui-spinner--lg {
+  min-width: 32px;
+  min-height: 32px;
+}
+
+.ui-spinner__label {
+  color: var(--ui-text-secondary);
+  font-size: var(--ui-font-sm);
+}
+
+/* ========== Badge ========== */
+.ui-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ui-spacing-xs);
+  font-family: var(--ui-font-family);
+  font-weight: 500;
+  border-radius: var(--ui-radius-sm);
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+/* Badge sizes */
+.ui-badge--sm {
+  padding: 2px 6px;
+  font-size: var(--ui-font-xs);
+}
+
+.ui-badge--md {
+  padding: 3px 8px;
+  font-size: var(--ui-font-sm);
+}
+
+.ui-badge--lg {
+  padding: 4px 10px;
+  font-size: var(--ui-font-md);
+}
+
+/* Badge variants */
+.ui-badge--default {
+  background-color: var(--ui-bg-elevated);
+  color: var(--ui-text-primary);
+}
+
+.ui-badge--error {
+  background-color: var(--ui-color-error-bg);
+  color: var(--ui-color-error-text);
+}
+
+.ui-badge--warning {
+  background-color: var(--ui-color-warning-bg);
+  color: var(--ui-color-warning-text);
+}
+
+.ui-badge--success {
+  background-color: var(--ui-color-success-bg);
+  color: var(--ui-color-success-text);
+}
+
+.ui-badge--info {
+  background-color: var(--ui-color-info-bg);
+  color: var(--ui-color-info-text);
+}
+
+/* Badge dot */
+.ui-badge--dot {
+  padding: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--ui-radius-full);
+}
+
+.ui-badge--dot.ui-badge--sm {
+  width: 6px;
+  height: 6px;
+}
+
+.ui-badge--dot.ui-badge--lg {
+  width: 10px;
+  height: 10px;
+}
+
+.ui-badge--dot.ui-badge--default {
+  background-color: var(--ui-text-secondary);
+}
+
+.ui-badge--dot.ui-badge--error {
+  background-color: var(--ui-color-error);
+}
+
+.ui-badge--dot.ui-badge--warning {
+  background-color: var(--ui-color-warning);
+}
+
+.ui-badge--dot.ui-badge--success {
+  background-color: var(--ui-color-success);
+}
+
+.ui-badge--dot.ui-badge--info {
+  background-color: var(--ui-color-info);
+}
+
+.ui-badge__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ui-badge__icon svg {
+  width: 12px;
+  height: 12px;
+}
+
+.ui-badge--lg .ui-badge__icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ========== Tooltip ========== */
+.ui-tooltip-trigger {
+  display: inline-flex;
+  align-items: center;
+}
+
+.ui-tooltip {
+  position: fixed;
+  z-index: var(--ui-z-tooltip);
+  padding: var(--ui-spacing-xs) var(--ui-spacing-sm);
+  background-color: #1e1e1e;
+  border: 1px solid var(--ui-border-secondary);
+  border-radius: var(--ui-radius-md);
+  color: var(--ui-text-primary);
+  font-size: var(--ui-font-sm);
+  max-width: 300px;
+  word-wrap: break-word;
+  pointer-events: none;
+  box-shadow: var(--ui-shadow-md);
+  animation: ui-tooltip-fade-in var(--ui-transition-fast);
+}
+
+@keyframes ui-tooltip-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ========== Card ========== */
+.ui-card {
+  background-color: var(--ui-bg-secondary);
+  border-radius: var(--ui-radius-md);
+  overflow: hidden;
+}
+
+.ui-card--bordered {
+  border: 1px solid var(--ui-border-primary);
+}
+
+.ui-card--hoverable {
+  transition: background-color var(--ui-transition-fast),
+              border-color var(--ui-transition-fast);
+  cursor: pointer;
+}
+
+.ui-card--hoverable:hover {
+  background-color: var(--ui-bg-tertiary);
+  border-color: var(--ui-border-secondary);
+}
+
+.ui-card__header {
+  padding: var(--ui-spacing-md) var(--ui-spacing-lg);
+  border-bottom: 1px solid var(--ui-border-primary);
+  font-weight: 600;
+  color: var(--ui-text-bright);
+}
+
+.ui-card__body {
+  color: var(--ui-text-primary);
+}
+
+.ui-card__body--padding-none {
+  padding: 0;
+}
+
+.ui-card__body--padding-sm {
+  padding: var(--ui-spacing-sm);
+}
+
+.ui-card__body--padding-md {
+  padding: var(--ui-spacing-md) var(--ui-spacing-lg);
+}
+
+.ui-card__body--padding-lg {
+  padding: var(--ui-spacing-lg) var(--ui-spacing-xl);
+}
+
+.ui-card__footer {
+  padding: var(--ui-spacing-md) var(--ui-spacing-lg);
+  border-top: 1px solid var(--ui-border-primary);
+  background-color: var(--ui-bg-tertiary);
+}
+
+/* ========== Input ========== */
+.ui-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-spacing-xs);
+}
+
+.ui-input-label {
+  font-size: var(--ui-font-sm);
+  color: var(--ui-text-primary);
+  font-weight: 500;
+}
+
+.ui-input-container {
+  display: flex;
+  align-items: center;
+  background-color: var(--ui-bg-input);
+  border: 1px solid var(--ui-border-primary);
+  border-radius: var(--ui-radius-md);
+  transition: border-color var(--ui-transition-fast),
+              box-shadow var(--ui-transition-fast);
+}
+
+.ui-input-container:focus-within {
+  border-color: var(--ui-border-focus);
+  box-shadow: 0 0 0 1px var(--ui-border-focus);
+}
+
+.ui-input-container--error {
+  border-color: var(--ui-color-error);
+}
+
+.ui-input-container--error:focus-within {
+  border-color: var(--ui-color-error);
+  box-shadow: 0 0 0 1px var(--ui-color-error);
+}
+
+.ui-input-container--success {
+  border-color: var(--ui-color-success);
+}
+
+.ui-input-container--success:focus-within {
+  border-color: var(--ui-color-success);
+  box-shadow: 0 0 0 1px var(--ui-color-success);
+}
+
+.ui-input-container--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Input sizes */
+.ui-input-container--sm {
+  height: 26px;
+}
+
+.ui-input-container--md {
+  height: 32px;
+}
+
+.ui-input-container--lg {
+  height: 38px;
+}
+
+.ui-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: var(--ui-text-primary);
+  font-family: var(--ui-font-family);
+  font-size: var(--ui-font-base);
+  padding: 0 var(--ui-spacing-sm);
+  outline: none;
+}
+
+.ui-input::placeholder {
+  color: var(--ui-text-muted);
+}
+
+.ui-input:disabled {
+  cursor: not-allowed;
+}
+
+.ui-input--sm {
+  font-size: var(--ui-font-sm);
+}
+
+.ui-input--lg {
+  font-size: var(--ui-font-lg);
+}
+
+.ui-input-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--ui-spacing-sm);
+  color: var(--ui-text-secondary);
+}
+
+.ui-input-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.ui-input-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--ui-spacing-sm);
+  color: var(--ui-text-secondary);
+  cursor: pointer;
+  background: none;
+  border: none;
+  border-radius: var(--ui-radius-sm);
+}
+
+.ui-input-clear:hover {
+  color: var(--ui-text-primary);
+}
+
+.ui-input-helper {
+  font-size: var(--ui-font-xs);
+  color: var(--ui-text-secondary);
+}
+
+.ui-input-validation {
+  font-size: var(--ui-font-xs);
+}
+
+.ui-input-validation--error {
+  color: var(--ui-color-error-text);
+}
+
+.ui-input-validation--success {
+  color: var(--ui-color-success-text);
+}
