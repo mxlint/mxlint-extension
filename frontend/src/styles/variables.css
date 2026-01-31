@@ -1,6 +1,102 @@
 /* UI Component Library - CSS Variables */
 
 :root {
+  /* Background colors - Light theme (default) */
+  --ui-bg-primary: #ffffff;
+  --ui-bg-secondary: #f5f5f5;
+  --ui-bg-tertiary: #eeeeee;
+  --ui-bg-elevated: #e0e0e0;
+  --ui-bg-hover: #d5d5d5;
+  --ui-bg-active: #cce5ff;
+  --ui-bg-input: #ffffff;
+
+  /* Text colors - Light theme */
+  --ui-text-primary: #333333;
+  --ui-text-secondary: #666666;
+  --ui-text-muted: #999999;
+  --ui-text-bright: #1a1a1a;
+  --ui-text-disabled: #b0b0b0;
+
+  /* Border colors - Light theme */
+  --ui-border-primary: #d0d0d0;
+  --ui-border-secondary: #c0c0c0;
+  --ui-border-focus: #0078d4;
+
+  /* Semantic colors - Light theme */
+  --ui-color-error: #d32f2f;
+  --ui-color-error-bg: #ffebee;
+  --ui-color-error-text: #c62828;
+
+  --ui-color-warning: #f57c00;
+  --ui-color-warning-bg: #fff3e0;
+  --ui-color-warning-text: #e65100;
+
+  --ui-color-success: #388e3c;
+  --ui-color-success-bg: #e8f5e9;
+  --ui-color-success-text: #2e7d32;
+
+  --ui-color-info: #1976d2;
+  --ui-color-info-bg: #e3f2fd;
+  --ui-color-info-text: #1565c0;
+
+  /* Primary/Brand colors */
+  --ui-color-primary: #0078d4;
+  --ui-color-primary-hover: #106ebe;
+  --ui-color-primary-text: #ffffff;
+
+  /* Danger colors */
+  --ui-color-danger: #d32f2f;
+  --ui-color-danger-hover: #b71c1c;
+  --ui-color-danger-text: #ffffff;
+
+  /* Spacing */
+  --ui-spacing-xs: 4px;
+  --ui-spacing-sm: 6px;
+  --ui-spacing-md: 10px;
+  --ui-spacing-lg: 16px;
+  --ui-spacing-xl: 20px;
+
+  /* Border radius */
+  --ui-radius-sm: 2px;
+  --ui-radius-md: 4px;
+  --ui-radius-lg: 8px;
+  --ui-radius-full: 9999px;
+
+  /* Font sizes */
+  --ui-font-xs: 10px;
+  --ui-font-sm: 11px;
+  --ui-font-md: 12px;
+  --ui-font-base: 13px;
+  --ui-font-lg: 15px;
+  --ui-font-xl: 16px;
+
+  /* Font family */
+  --ui-font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Transitions */
+  --ui-transition-fast: 0.1s ease;
+  --ui-transition-normal: 0.2s ease;
+  --ui-transition-slow: 0.3s ease;
+
+  /* Shadows - Light theme */
+  --ui-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --ui-shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12);
+  --ui-shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
+
+  /* Scrollbar colors - Light theme */
+  --ui-scrollbar-thumb: #c0c0c0;
+  --ui-scrollbar-thumb-hover: #a0a0a0;
+
+  /* Z-index layers */
+  --ui-z-dropdown: 100;
+  --ui-z-sticky: 500;
+  --ui-z-modal: 1000;
+  --ui-z-toast: 1100;
+  --ui-z-tooltip: 1200;
+}
+
+/* Dark theme */
+[data-theme="dark"] {
   /* Background colors */
   --ui-bg-primary: #1e1e1e;
   --ui-bg-secondary: #252526;
@@ -49,44 +145,12 @@
   --ui-color-danger-hover: #d73a3a;
   --ui-color-danger-text: #ffffff;
 
-  /* Spacing */
-  --ui-spacing-xs: 4px;
-  --ui-spacing-sm: 6px;
-  --ui-spacing-md: 10px;
-  --ui-spacing-lg: 16px;
-  --ui-spacing-xl: 20px;
-
-  /* Border radius */
-  --ui-radius-sm: 2px;
-  --ui-radius-md: 4px;
-  --ui-radius-lg: 8px;
-  --ui-radius-full: 9999px;
-
-  /* Font sizes */
-  --ui-font-xs: 10px;
-  --ui-font-sm: 11px;
-  --ui-font-md: 12px;
-  --ui-font-base: 13px;
-  --ui-font-lg: 15px;
-  --ui-font-xl: 16px;
-
-  /* Font family */
-  --ui-font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-
-  /* Transitions */
-  --ui-transition-fast: 0.1s ease;
-  --ui-transition-normal: 0.2s ease;
-  --ui-transition-slow: 0.3s ease;
-
-  /* Shadows */
+  /* Shadows - Dark theme */
   --ui-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
   --ui-shadow-md: 0 4px 8px rgba(0, 0, 0, 0.4);
   --ui-shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.5);
 
-  /* Z-index layers */
-  --ui-z-dropdown: 100;
-  --ui-z-sticky: 500;
-  --ui-z-modal: 1000;
-  --ui-z-toast: 1100;
-  --ui-z-tooltip: 1200;
+  /* Scrollbar colors - Dark theme */
+  --ui-scrollbar-thumb: #424242;
+  --ui-scrollbar-thumb-hover: #4f4f4f;
 }

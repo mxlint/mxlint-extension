@@ -13,7 +13,7 @@ A React + TypeScript web application for viewing, filtering, and managing lint t
 - **Issue Export** - Generate formatted issue reports (Markdown, Jira, Plain Text)
 - **CSV Export** - Export filtered results to CSV
 - **Keyboard Shortcuts** - Full keyboard navigation support
-- **VSCode Integration** - Seamless integration via Chrome WebView API
+- **Mendix Studio Pro Integration** - Seamless integration via Chrome WebView API
 
 ## Quick Start
 
@@ -224,7 +224,7 @@ const { visibleItems, totalHeight, offsetY, startIndex, endIndex } = useVirtualL
 ```typescript
 postMessage(message: string, data?: unknown): void
 ```
-Sends messages to Chrome WebView API for VSCode integration.
+Sends messages to Chrome WebView API for the Mendix Studio Pro integration.
 
 **Messages:**
 - `"MessageListenerRegistered"` - Initial handshake
@@ -392,7 +392,7 @@ interface ProcessedTestCaseWithId extends ProcessedTestCase {
 | `I` | Create issue |
 | `?` | Show shortcuts modal |
 
-## VSCode Integration
+## Mendix Studio Pro Integration
 
 The application communicates with MxLint extension via Chrome WebView API:
 
@@ -425,7 +425,7 @@ if (window.chrome?.webview) {
 
 ## Styling
 
-The application uses a dark theme matching VSCode's default appearance:
+The application uses a dark theme matching Mendix Studio Pro's default appearance:
 
 - **Background:** `#1e1e1e`
 - **Text:** `#cccccc`
@@ -450,7 +450,7 @@ All styles are defined in `App.css` using CSS custom properties for consistency.
 
 The application supports two data source modes:
 
-1. **WebView Mode** - Fetches from `./api` endpoint when running in VSCode
+1. **WebView Mode** - Fetches from `./api` endpoint when running in Mendix Studio Pro
 2. **Standalone Mode** - Fetches from `/lint-results.json` for development
 
 Auto-refresh polls every 1 second when in WebView mode.

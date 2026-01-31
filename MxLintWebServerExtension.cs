@@ -2,6 +2,7 @@ using System.ComponentModel.Composition;
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Mendix.StudioPro.ExtensionsAPI.Services;
 using Mendix.StudioPro.ExtensionsAPI.UI.WebServer;
 
@@ -12,12 +13,14 @@ public class MxLintWebServerExtension : WebServerExtension
 {
     private readonly IExtensionFileService _extensionFileService;
     private readonly ILogService _logService;
+    private readonly IConfigurationService _configurationService;
 
     [ImportingConstructor]
-    public MxLintWebServerExtension(IExtensionFileService extensionFileService, ILogService logService)
+    public MxLintWebServerExtension(IExtensionFileService extensionFileService, ILogService logService, IConfigurationService configurationService)
     {
         _extensionFileService = extensionFileService;
         _logService = logService;
+        _configurationService = configurationService;
     }
 
     public override void InitializeWebServer(IWebServer webServer)
@@ -32,6 +35,7 @@ public class MxLintWebServerExtension : WebServerExtension
         }
 
         webServer.AddRoute("api", ServeAPI);
+        webServer.AddRoute("api/theme", ServeTheme);
     }
 
     private async Task ServeFile(string filePath, HttpListenerResponse response, CancellationToken ct)
@@ -65,6 +69,31 @@ public class MxLintWebServerExtension : WebServerExtension
         var data = await File.ReadAllTextAsync(jsonPath, ct);
         var jsonStream = new MemoryStream();
         jsonStream.Write(Encoding.UTF8.GetBytes(data));
+        response.SendJsonAndClose(jsonStream);
+    }
+
+    private async Task ServeTheme(HttpListenerRequest request, HttpListenerResponse response, CancellationToken ct)
+    {
+        if (CurrentApp == null)
+        {
+            response.SendNoBodyAndClose(404);
+            return;
+        }
+
+        var themeObject = new JsonObject
+        {
+            ["theme"] = _configurationService.Configuration.Theme
+                .ToString()
+                .ToLowerInvariant()
+        };
+
+        string json = themeObject.ToJsonString(new()
+        {
+            WriteIndented = true,
+        });
+
+        var jsonStream = new MemoryStream();
+        jsonStream.Write(Encoding.UTF8.GetBytes(json));
         response.SendJsonAndClose(jsonStream);
     }
 }
