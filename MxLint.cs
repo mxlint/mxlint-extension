@@ -55,7 +55,7 @@ public class MxLint
 
     public async Task LintModel()
     {
-        await RunProcess($"lint -j {LintResultsPath} -r {RulesPath}", "Linting model");
+        await RunProcess($"lint -j \"{LintResultsPath}\" -r \"{RulesPath}\"", "Linting model");
     }
 
     private async Task RunProcess(string arguments, string operationName)
