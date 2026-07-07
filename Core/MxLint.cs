@@ -21,6 +21,8 @@ public class MxLint
     private readonly string _cachePath;
     private readonly string _logFilePath;
 
+    public bool DiffMode { get; set; }
+
     public MxLint(IModel model, ILogService logService)
     {
         _model = model;
@@ -63,7 +65,8 @@ public class MxLint
 
     public async Task LintModel()
     {
-        await RunProcess($"--config \"{_configPath}\" lint", "Linting model");
+        var diffArg = DiffMode ? " --diff" : string.Empty;
+        await RunProcess($"--config \"{_configPath}\" lint{diffArg}", "Linting model");
     }
 
     public async Task AddNoqaRules(IEnumerable<NoqaDocumentRules> entries)
@@ -420,7 +423,6 @@ public class MxLint
                 XunitReport = "",
                 JsonFile = ".mendix-cache/lint-results.json",
                 IgnoreNoqa = false,
-                NoCache = false,
                 Concurrency = 4,
                 RegoTrace = false,
                 Skip = new Dictionary<string, List<MxLintConfigSkipRule>>()
@@ -525,7 +527,6 @@ public sealed class MxLintConfigLint
     public string XunitReport { get; set; } = "";
     public string JsonFile { get; set; } = "";
     public bool IgnoreNoqa { get; set; }
-    public bool NoCache { get; set; }
     public int Concurrency { get; set; } = 4;
     public bool RegoTrace { get; set; }
     public Dictionary<string, List<MxLintConfigSkipRule>> Skip { get; set; } = new();

@@ -6,7 +6,6 @@ lint:
   xunitReport: yolo.xml
   jsonFile: .mendix-cache/lint-results.json
   ignoreNoqa: false
-  noCache: false
   concurrency: 4
   regoTrace: false
   skip: {}
@@ -21,7 +20,7 @@ serve:
   port: 8082
   debounce: 500
 cli:
-  version: v3.14.2
+  version: v3.16.0
 ui:
   bookmarks: []
 modelsource: modelsource

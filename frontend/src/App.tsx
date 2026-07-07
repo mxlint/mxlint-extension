@@ -133,6 +133,10 @@ const App: React.FC = () => {
     const saved = localStorage.getItem('mxlint:autoRefreshEnabled');
     return saved == null ? true : saved === 'true';
   });
+  const [diffModeEnabled, setDiffModeEnabled] = useState<boolean>(() => {
+    const saved = localStorage.getItem('mxlint:diffModeEnabled');
+    return saved == null ? true : saved === 'true';
+  });
   const [selectedRowIndex, setSelectedRowIndex] = useState(-1);
   const [selectedIssues, setSelectedIssues] = useState<Set<string>>(() => new Set());
   const [showIssueModal, setShowIssueModal] = useState(false);
@@ -369,6 +373,11 @@ const App: React.FC = () => {
     localStorage.setItem('mxlint:autoRefreshEnabled', String(autoRefreshEnabled));
     void sendExtensionMessage('setAutoRefresh', { enabled: autoRefreshEnabled });
   }, [autoRefreshEnabled]);
+
+  useEffect(() => {
+    localStorage.setItem('mxlint:diffModeEnabled', String(diffModeEnabled));
+    void sendExtensionMessage('setDiffMode', { enabled: diffModeEnabled });
+  }, [diffModeEnabled]);
 
   useEffect(() => {
     const loadBookmarks = async () => {
@@ -1081,6 +1090,16 @@ const App: React.FC = () => {
             className={autoRefreshEnabled ? 'active' : ''}
           >
             Auto {autoRefreshEnabled ? 'On' : 'Off'}
+          </Button>
+
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setDiffModeEnabled(prev => !prev)}
+            title="Toggle diff mode (only lint documents with unstaged git changes)"
+            className={diffModeEnabled ? 'active' : ''}
+          >
+            Diff {diffModeEnabled ? 'On' : 'Off'}
           </Button>
 
           <Button

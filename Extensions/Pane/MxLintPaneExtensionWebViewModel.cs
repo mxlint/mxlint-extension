@@ -18,6 +18,7 @@ public class MxLintPaneExtensionWebViewModel : WebViewDockablePaneViewModel
     private readonly SemaphoreSlim _lintLock = new(1, 1);
     private DateTime _lastUpdateTime;
     private bool _autoRefreshEnabled = true;
+    private bool _diffModeEnabled = true;
     private IWebView? _webView;
 
     public MxLintPaneExtensionWebViewModel(
@@ -73,6 +74,12 @@ public class MxLintPaneExtensionWebViewModel : WebViewDockablePaneViewModel
             {
                 _autoRefreshEnabled = ParseBoolean(args.Data);
                 _logService.Info($"Auto refresh set to {_autoRefreshEnabled}");
+            }
+
+            if (args.Message == "setDiffMode")
+            {
+                _diffModeEnabled = ParseBoolean(args.Data);
+                _logService.Info($"Diff mode set to {_diffModeEnabled}");
             }
 
             if (args.Message == "runLintNow")
@@ -193,7 +200,7 @@ public class MxLintPaneExtensionWebViewModel : WebViewDockablePaneViewModel
         _lastUpdateTime = lastWrite;
         _logService.Info(force ? "Manual lint run requested" : $"Changes detected: {_lastUpdateTime}");
 
-        var cmd = new MxLint(currentApp, _logService);
+        var cmd = new MxLint(currentApp, _logService) { DiffMode = _diffModeEnabled };
         await cmd.Lint();
 
         _webView?.PostMessage("end");

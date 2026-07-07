@@ -24,6 +24,7 @@ public class MxLintWebServerExtension : WebServerExtension
     private readonly SemaphoreSlim _refreshLintLock = new(1, 1);
     private DateTime _lastRefreshUpdateTime = DateTime.Now.AddYears(-100);
     private bool _autoRefreshEnabled = true;
+    private bool _diffModeEnabled = true;
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
@@ -307,7 +308,7 @@ public class MxLintWebServerExtension : WebServerExtension
         await _runLintLock.WaitAsync(ct);
         try
         {
-            var mxlint = new MxLint(CurrentApp, _logService);
+            var mxlint = CreateMxLint(CurrentApp);
             await mxlint.Lint();
             SendJson(response, new { success = true });
         }
@@ -424,6 +425,12 @@ public class MxLintWebServerExtension : WebServerExtension
                 SendJson(response, new { success = true, autoRefreshEnabled = _autoRefreshEnabled });
                 return;
 
+            case "setDiffMode":
+                _diffModeEnabled = ParseBoolean(data);
+                _logService.Info($"Diff mode set to {_diffModeEnabled} via HTTP message");
+                SendJson(response, new { success = true, diffModeEnabled = _diffModeEnabled });
+                return;
+
             case "refreshData":
             {
                 if (!_autoRefreshEnabled)
@@ -480,7 +487,7 @@ public class MxLintWebServerExtension : WebServerExtension
             }
 
             _lastRefreshUpdateTime = lastWrite;
-            var mxlint = new MxLint(currentApp, _logService);
+            var mxlint = CreateMxLint(currentApp);
             await mxlint.Lint();
             return true;
         }
@@ -569,6 +576,9 @@ public class MxLintWebServerExtension : WebServerExtension
     {
         return Directory.GetFiles(directoryPath, "*.mpr", SearchOption.TopDirectoryOnly).FirstOrDefault();
     }
+
+    private MxLint CreateMxLint(IModel currentApp) =>
+        new(currentApp, _logService) { DiffMode = _diffModeEnabled };
 
     private static bool ParseBoolean(JsonObject data)
     {

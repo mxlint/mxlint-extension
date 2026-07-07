@@ -61,7 +61,6 @@ public class ConfigTests : IDisposable
         var config = DeserializeConfig(await File.ReadAllTextAsync(_fixture.ConfigPath));
 
         Assert.False(config.Lint.IgnoreNoqa);
-        Assert.False(config.Lint.NoCache);
         Assert.Equal(4, config.Lint.Concurrency);
         Assert.False(config.Lint.RegoTrace);
         Assert.NotNull(config.Lint.Skip);
