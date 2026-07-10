@@ -1,6 +1,8 @@
 import React from 'react';
 import type { DocumentInfo, ProcessedTestCaseWithId } from '@/types';
 import { isOpenableDocument } from '@/utils';
+import { SeverityCell } from './SeverityCell';
+import { StatusCell } from './StatusCell';
 
 interface LightRowProps {
   tc: ProcessedTestCaseWithId;
@@ -13,17 +15,16 @@ interface LightRowProps {
 
 export const LightRow: React.FC<LightRowProps> = ({ tc, isChecked, isSelected, onOpenDocument, onToggleSelection, onSelectRow }) => {
   const isClickable = isOpenableDocument(tc.docname);
-  const severityClass = tc.rule?.severity?.toLowerCase() || 'low';
   const rowClass = `${isChecked ? 'checked-row ' : ''}${isSelected ? 'selected-row' : ''}`.trim();
   const skipReason = tc.status === 'skip' ? tc.skipped?.message?.trim() : '';
 
   return (
     <tr className={rowClass || undefined} onClick={() => onSelectRow(tc.id)}>
-      <td className="checkbox-cell" onClick={e => e.stopPropagation()}>
+      <td className="checkbox-cell col-checkbox" onClick={e => e.stopPropagation()}>
         <input type="checkbox" checked={isChecked} onChange={() => onToggleSelection(tc.id)} className="row-checkbox" />
       </td>
-      <td><span className={`severity-label ${severityClass}`}>{tc.rule?.severity || 'N/A'}</span></td>
-      <td title={tc.docname}>
+      <td className="col-severity"><SeverityCell severity={tc.rule?.severity} /></td>
+      <td className="col-document" title={tc.docname}>
         {isClickable ? (
           <a
             href="#"
@@ -38,15 +39,10 @@ export const LightRow: React.FC<LightRowProps> = ({ tc, isChecked, isSelected, o
           </a>
         ) : tc.docname}
       </td>
-      <td title={tc.module}>{tc.module}</td>
-      <td>{tc.rule?.ruleName || 'Unknown'}</td>
-      <td>
-        <span
-          className={`status-label ${tc.status}`}
-          title={skipReason || undefined}
-        >
-          {tc.status}
-        </span>
+      <td className="col-module" title={tc.module}>{tc.module}</td>
+      <td className="col-rule">{tc.rule?.ruleName || 'Unknown'}</td>
+      <td className="col-status">
+        <StatusCell status={tc.status} skipReason={skipReason || undefined} />
       </td>
     </tr>
   );

@@ -841,6 +841,71 @@ html, body {
   color: var(--ui-color-success);
 }
 
+/* ========== Icon cells (severity / status) ========== */
+/* The icon variant is hidden by default and revealed on narrow screens. */
+.cell-icon {
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.cell-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  line-height: 0;
+}
+
+.severity-icon-svg.severity-high {
+  color: var(--ui-color-error);
+}
+
+.severity-icon-svg.severity-medium {
+  color: var(--ui-color-warning);
+}
+
+.severity-icon-svg.severity-low {
+  color: var(--ui-color-success);
+}
+
+/* ========== Responsive: narrow screens ========== */
+/* Collapse to the essential columns (severity, rule, status) and swap the
+   text badges for compact icons with tooltips. */
+@media (max-width: 768px) {
+  .lint-table .col-checkbox,
+  .lint-table .col-bookmark,
+  .lint-table .col-document,
+  .lint-table .col-module,
+  .lint-table .col-doctype,
+  .lint-table .col-category {
+    display: none;
+  }
+
+  .lint-table .severity-label,
+  .lint-table .status-label {
+    display: none;
+  }
+
+  .lint-table .cell-icon {
+    display: inline-flex;
+  }
+
+  .lint-table .col-severity {
+    width: 44px;
+    text-align: center;
+  }
+
+  .lint-table .col-status {
+    width: 48px;
+    text-align: center;
+  }
+
+  .lint-table .col-rule {
+    width: auto;
+  }
+}
+
 /* ========== Document Link ========== */
 .document-link {
   color: var(--ui-color-info);

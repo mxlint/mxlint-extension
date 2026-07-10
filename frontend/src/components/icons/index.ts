@@ -1,5 +1,5 @@
 // Status icons
-export { ErrorIcon, CheckIcon, SkipIcon } from './StatusIcons';
+export { ErrorIcon, CheckIcon, SkipIcon, SeverityIcon } from './StatusIcons';
 
 // Action icons
 export { RefreshIcon, FilterIcon, ExportIcon, SearchIcon, ClearIcon } from './ActionIcons';
