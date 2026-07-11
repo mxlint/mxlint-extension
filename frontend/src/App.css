@@ -873,8 +873,8 @@ html, body {
 /* Collapse to the essential columns (severity, rule, status) and swap the
    text badges for compact icons with tooltips. */
 @media (max-width: 768px) {
-  .lint-table .col-checkbox,
-  .lint-table .col-bookmark,
+  /* Keep the checkbox (multi-select) and bookmark action columns; only the
+     data columns collapse into the detail panel. */
   .lint-table .col-document,
   .lint-table .col-module,
   .lint-table .col-doctype,
