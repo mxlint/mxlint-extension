@@ -1,5 +1,6 @@
 using System.ComponentModel.Composition;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -64,6 +65,8 @@ public class MxLintWebServerExtension : WebServerExtension
 
         webServer.AddRoute("api", ServeApi);
         webServer.AddRoute("wwwroot/api", ServeApi);
+        webServer.AddRoute("api/version", ServeVersion);
+        webServer.AddRoute("wwwroot/api/version", ServeVersion);
         webServer.AddRoute("api/theme", ServeTheme);
         webServer.AddRoute("wwwroot/api/theme", ServeTheme);
         webServer.AddRoute("api/noqa", ServeNoqa);
@@ -143,6 +146,43 @@ public class MxLintWebServerExtension : WebServerExtension
         var jsonStream = new MemoryStream();
         jsonStream.Write(Encoding.UTF8.GetBytes(data));
         response.SendJsonAndClose(jsonStream);
+    }
+
+    private Task ServeVersion(HttpListenerRequest request, HttpListenerResponse response, CancellationToken ct)
+    {
+        _logService.Info($"ServeVersion hit: {request.Url}");
+
+        var versionObject = new JsonObject
+        {
+            ["version"] = GetExtensionVersion()
+        };
+
+        var json = versionObject.ToJsonString(new()
+        {
+            WriteIndented = true
+        });
+
+        var jsonStream = new MemoryStream();
+        jsonStream.Write(Encoding.UTF8.GetBytes(json));
+        response.SendJsonAndClose(jsonStream);
+        return Task.CompletedTask;
+    }
+
+    private static string GetExtensionVersion()
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+        var informationalVersion = assembly
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
+            .InformationalVersion;
+
+        // InformationalVersion may carry build metadata (e.g. "3.7.1+abc123"); trim it.
+        var version = informationalVersion?.Split('+')[0];
+        if (string.IsNullOrWhiteSpace(version))
+        {
+            version = assembly.GetName().Version?.ToString();
+        }
+
+        return string.IsNullOrWhiteSpace(version) ? "unknown" : version;
     }
 
     private Task ServeTheme(HttpListenerRequest request, HttpListenerResponse response, CancellationToken ct)

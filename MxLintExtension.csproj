@@ -5,6 +5,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <!-- Default version for local/dev builds. Release builds override this via
+         `dotnet build -p:Version=x.y.z` (see Makefile / release workflow). -->
+    <Version>3.7.1</Version>
   </PropertyGroup>
 
   <ItemGroup>

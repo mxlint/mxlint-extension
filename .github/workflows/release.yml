@@ -18,7 +18,9 @@ jobs:
       - name: Display dotnet version
         run: dotnet --version
       - name: Compile
-        run: make
+        run: make VERSION="${TAG_NAME#v}"
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name }}
       - name: Zip extension
         run: |
           mkdir -p MxLintExtension
