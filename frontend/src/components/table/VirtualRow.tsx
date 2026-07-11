@@ -3,6 +3,8 @@ import type { DocumentInfo, ProcessedTestCaseWithId } from '@/types';
 import { BookmarkIcon } from '@/components/icons';
 import { isOpenableDocument } from '@/utils';
 import { Button } from '@/components/ui';
+import { SeverityCell } from './SeverityCell';
+import { StatusCell } from './StatusCell';
 
 interface VirtualRowProps {
   testcase: ProcessedTestCaseWithId;
@@ -29,7 +31,6 @@ export const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
 }) => {
   const { id, name, rule, status, module, docname, doctype } = testcase;
   const isClickable = isOpenableDocument(docname);
-  const severityClass = rule?.severity?.toLowerCase() || 'low';
   const skipReason = status === 'skip' ? testcase.skipped?.message?.trim() : '';
 
   const handleDocClick = useCallback((e: React.MouseEvent) => {
@@ -56,10 +57,10 @@ export const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
 
   return (
     <tr className={rowClass || undefined} onClick={handleRowClick}>
-      <td className="checkbox-cell" onClick={e => e.stopPropagation()}>
+      <td className="checkbox-cell col-checkbox" onClick={e => e.stopPropagation()}>
         <input type="checkbox" checked={isChecked} onChange={handleCheck} className="row-checkbox" />
       </td>
-      <td className="bookmark-cell">
+      <td className="bookmark-cell col-bookmark">
         <Button
           variant="ghost"
           size="sm"
@@ -71,27 +72,22 @@ export const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
           <BookmarkIcon filled={isBookmarked} />
         </Button>
       </td>
-      <td>
-        <span className={`severity-label ${severityClass}`}>{rule?.severity || 'N/A'}</span>
+      <td className="col-severity">
+        <SeverityCell severity={rule?.severity} />
       </td>
-      <td title={docname}>
+      <td className="col-document" title={docname}>
         {isClickable ? (
           <a href="#" className="document-link" onClick={handleDocClick}>{docname}</a>
         ) : (
           <span>{docname}</span>
         )}
       </td>
-      <td title={module}>{module}</td>
-      <td title={doctype}>{doctype}</td>
-      <td title={rule?.ruleName || 'Unknown'}>{rule?.ruleName || 'Unknown'}</td>
-      <td>{rule?.category || 'N/A'}</td>
-      <td>
-        <span
-          className={`status-label ${status}`}
-          title={skipReason || undefined}
-        >
-          {status}
-        </span>
+      <td className="col-module" title={module}>{module}</td>
+      <td className="col-doctype" title={doctype}>{doctype}</td>
+      <td className="col-rule" title={rule?.ruleName || 'Unknown'}>{rule?.ruleName || 'Unknown'}</td>
+      <td className="col-category">{rule?.category || 'N/A'}</td>
+      <td className="col-status">
+        <StatusCell status={status} skipReason={skipReason || undefined} />
       </td>
     </tr>
   );
