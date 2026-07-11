@@ -151,6 +151,7 @@ const App: React.FC = () => {
   const [pendingNoqaAddEntries, setPendingNoqaAddEntries] = useState<NoqaEntryDraft[]>([]);
   const [pendingNoqaRemoveEntries, setPendingNoqaRemoveEntries] = useState<NoqaEntryDraft[]>([]);
   const [closedPanelForId, setClosedPanelForId] = useState<string | null>(null);
+  const [version, setVersion] = useState<string>('');
 
   const sendDiag = useCallback((event: string, detail: string) => {
     const url = `./api/diag?source=app&event=${encodeURIComponent(event)}&detail=${encodeURIComponent(detail)}`;
@@ -378,6 +379,26 @@ const App: React.FC = () => {
     localStorage.setItem('mxlint:diffModeEnabled', String(diffModeEnabled));
     void sendExtensionMessage('setDiffMode', { enabled: diffModeEnabled });
   }, [diffModeEnabled]);
+
+  useEffect(() => {
+    const loadVersion = async () => {
+      try {
+        const response = await fetch('./api/version');
+        if (!response.ok) {
+          return;
+        }
+
+        const payload = await response.json() as { version?: string };
+        if (payload.version) {
+          setVersion(payload.version);
+        }
+      } catch {
+        // Version is informational only; ignore failures.
+      }
+    };
+
+    void loadVersion();
+  }, []);
 
   useEffect(() => {
     const loadBookmarks = async () => {
@@ -1165,6 +1186,11 @@ const App: React.FC = () => {
             title="Edit mxlint.yaml configuration"
           />
           <Button size="sm" variant="ghost" icon={<KeyboardIcon />} onClick={() => setShowKeyboardShortcuts(true)} title="Show keyboard shortcuts (?)" />
+          {version && (
+            <span className="toolbar-version" title={`MxLint Extension version ${version}`}>
+              v{version}
+            </span>
+          )}
         </div>
       </div>
 

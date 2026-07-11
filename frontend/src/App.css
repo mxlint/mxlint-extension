@@ -74,6 +74,14 @@ html, body {
   margin-left: auto;
 }
 
+.toolbar-version {
+  padding: 0 4px;
+  font-size: 11px;
+  color: var(--ui-text-secondary);
+  white-space: nowrap;
+  user-select: text;
+}
+
 .toolbar-item {
   display: flex;
   align-items: center;
