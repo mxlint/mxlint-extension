@@ -217,9 +217,10 @@ public class MxLintPaneExtensionWebViewModel : WebViewDockablePaneViewModel
         _logService.Info(force ? "Manual lint run requested" : $"Changes detected: {_lastUpdateTime}");
 
         var cmd = new MxLint(currentApp, _logService) { DiffMode = _diffModeEnabled };
-        await cmd.Lint();
+        var lintSucceeded = await cmd.Lint();
 
         _webView?.PostMessage("end");
+        _webView?.PostMessage(lintSucceeded ? "lintSucceeded" : "lintFailed");
         _webView?.PostMessage("refreshData");
         return true;
         }

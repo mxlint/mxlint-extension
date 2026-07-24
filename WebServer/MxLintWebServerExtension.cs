@@ -104,8 +104,12 @@ public class MxLintWebServerExtension : WebServerExtension
         {
             try
             {
-                var mxlint = new MxLint(currentApp, _logService);
-                await mxlint.Lint();
+                var mxlint = CreateMxLint(currentApp);
+                var lintSucceeded = await mxlint.Lint();
+                if (!lintSucceeded)
+                {
+                    _logService.Error("Initial lint run failed; UI may show outdated results.");
+                }
             }
             catch (Exception ex)
             {
@@ -351,14 +355,19 @@ public class MxLintWebServerExtension : WebServerExtension
         try
         {
             var mxlint = CreateMxLint(CurrentApp);
-            await mxlint.Lint();
-            SendJson(response, new { success = true });
+            var lintSucceeded = await mxlint.Lint();
+            SendJson(response, new
+            {
+                success = lintSucceeded,
+                lintSucceeded,
+                error = lintSucceeded ? null : "Lint workflow failed. Displayed results may be outdated."
+            }, lintSucceeded ? 200 : 500);
         }
         catch (Exception ex)
         {
             _logService.Error($"ServeRunLint failed: {ex}");
             WriteDebugToMxLintLog(CurrentApp, $"ServeRunLint failed: {ex.Message}");
-            SendJson(response, new { success = false, error = ex.Message }, 500);
+            SendJson(response, new { success = false, lintSucceeded = false, error = ex.Message }, 500);
         }
         finally
         {
@@ -568,15 +577,30 @@ public class MxLintWebServerExtension : WebServerExtension
                     return;
                 }
 
-                var ran = await RunLintIfNeeded(CurrentApp, force: false, ct);
-                SendJson(response, new { success = true, ran });
+                var (ran, lintSucceeded) = await RunLintIfNeeded(CurrentApp, force: false, ct);
+                SendJson(response, new
+                {
+                    success = true,
+                    ran,
+                    lintSucceeded,
+                    error = ran && !lintSucceeded
+                        ? "Lint workflow failed. Displayed results may be outdated."
+                        : null
+                });
                 return;
             }
 
             case "runLintNow":
             {
-                await RunLintIfNeeded(CurrentApp, force: true, ct);
-                SendJson(response, new { success = true, ran = true });
+                var (_, lintSucceeded) = await RunLintIfNeeded(CurrentApp, force: true, ct);
+                // Keep HTTP 200 so the message transport can deliver lintSucceeded to the UI.
+                SendJson(response, new
+                {
+                    success = true,
+                    ran = true,
+                    lintSucceeded,
+                    error = lintSucceeded ? null : "Lint workflow failed. Displayed results may be outdated."
+                });
                 return;
             }
 
@@ -597,7 +621,7 @@ public class MxLintWebServerExtension : WebServerExtension
         }
     }
 
-    private async Task<bool> RunLintIfNeeded(IModel currentApp, bool force, CancellationToken ct)
+    private async Task<(bool Ran, bool LintSucceeded)> RunLintIfNeeded(IModel currentApp, bool force, CancellationToken ct)
     {
         await _refreshLintLock.WaitAsync(ct);
         try
@@ -605,20 +629,20 @@ public class MxLintWebServerExtension : WebServerExtension
             var mprFile = GetMprFile(currentApp.Root.DirectoryPath);
             if (mprFile == null)
             {
-                return false;
+                return (false, false);
             }
 
             var lastWrite = File.GetLastWriteTime(mprFile);
             if (!force && lastWrite <= _lastRefreshUpdateTime)
             {
                 _logService.Debug("HTTP refreshData: no changes detected.");
-                return false;
+                return (false, true);
             }
 
             _lastRefreshUpdateTime = lastWrite;
             var mxlint = CreateMxLint(currentApp);
-            await mxlint.Lint();
-            return true;
+            var lintSucceeded = await mxlint.Lint();
+            return (true, lintSucceeded);
         }
         finally
         {

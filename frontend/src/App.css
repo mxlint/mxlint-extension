@@ -27,6 +27,39 @@ html, body {
   box-sizing: border-box;
 }
 
+.lint-outdated-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 8px 12px;
+  background: var(--ui-color-warning-bg);
+  color: var(--ui-color-warning-text);
+  border-bottom: 1px solid var(--ui-color-warning);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.lint-outdated-banner strong {
+  font-weight: 600;
+}
+
+.lint-outdated-banner__dismiss {
+  margin-left: auto;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0 4px;
+  opacity: 0.8;
+}
+
+.lint-outdated-banner__dismiss:hover {
+  opacity: 1;
+}
+
 /* ========== Toolbar ========== */
 .lint-pane-toolbar {
   display: flex;

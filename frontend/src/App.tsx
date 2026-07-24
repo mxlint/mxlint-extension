@@ -132,6 +132,7 @@ const App: React.FC = () => {
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
   const [diffModeEnabled, setDiffModeEnabled] = useState(true);
   const [uiSettingsReady, setUiSettingsReady] = useState(false);
+  const [lintResultsOutdated, setLintResultsOutdated] = useState(false);
   const [selectedRowIndex, setSelectedRowIndex] = useState(-1);
   const [selectedIssues, setSelectedIssues] = useState<Set<string>>(() => new Set());
   const [showIssueModal, setShowIssueModal] = useState(false);
@@ -333,6 +334,8 @@ const App: React.FC = () => {
       if (message === 'refreshData') await refreshData();
       else if (message === 'start') setIsLoading(true);
       else if (message === 'end') setIsLoading(false);
+      else if (message === 'lintSucceeded') setLintResultsOutdated(false);
+      else if (message === 'lintFailed') setLintResultsOutdated(true);
     };
 
     if (addWebviewMessageListener(handleMessage)) {
@@ -358,6 +361,11 @@ const App: React.FC = () => {
         // In no-bridge environments (macOS), the backend cannot push refreshData events.
         // Pull updated results after a successful refresh trigger.
         if (result.transport === 'http' && result.success) {
+          if (result.ran && result.lintSucceeded === false) {
+            setLintResultsOutdated(true);
+          } else if (result.ran && result.lintSucceeded) {
+            setLintResultsOutdated(false);
+          }
           await refreshData();
         }
       })();
@@ -583,11 +591,18 @@ const App: React.FC = () => {
       if (payload.transport === 'bridge') {
         success('Manual lint run started.');
       } else {
+        if (payload.lintSucceeded === false) {
+          setLintResultsOutdated(true);
+          toastError(payload.error || 'Lint failed. Displayed results may be outdated.');
+        } else {
+          setLintResultsOutdated(false);
+          success('Manual lint run completed.');
+        }
         await refreshData();
-        success('Manual lint run completed.');
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to run lint.';
+      setLintResultsOutdated(true);
       toastError(message);
     }
   }, [refreshData, sendDiag, success, toastError]);
@@ -1081,6 +1096,20 @@ const App: React.FC = () => {
 
   return (
     <div className="lint-pane">
+      {lintResultsOutdated && (
+        <div className="lint-outdated-banner" role="alert">
+          <strong>Lint failed.</strong> The results below may be outdated. Fix the error and run lint again.
+          <button
+            type="button"
+            className="lint-outdated-banner__dismiss"
+            onClick={() => setLintResultsOutdated(false)}
+            title="Dismiss warning"
+            aria-label="Dismiss warning"
+          >
+            ×
+          </button>
+        </div>
+      )}
       {/* Toolbar */}
       <div className="lint-pane-toolbar">
         <div className="toolbar-group toolbar-group--status">

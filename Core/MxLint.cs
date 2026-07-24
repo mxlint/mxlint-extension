@@ -37,7 +37,11 @@ public class MxLint
         _logFilePath = Path.Combine(_cachePath, "mxlint.logs");
     }
 
-    public async Task Lint()
+    /// <summary>
+    /// Runs export + lint. Returns false when the workflow fails (CLI crash, export error, etc.).
+    /// Non-zero lint exit due to rule findings still counts as success because results were written.
+    /// </summary>
+    public async Task<bool> Lint()
     {
         LogInfo("Starting lint workflow.");
         try
@@ -51,10 +55,12 @@ public class MxLint
             await ExportModel();
             await LintModel();
             LogInfo("Lint workflow completed.");
+            return true;
         }
         catch (Exception ex)
         {
             LogError($"Error during linting process: {ex.Message}", ex);
+            return false;
         }
     }
 
@@ -66,7 +72,12 @@ public class MxLint
     public async Task LintModel()
     {
         var diffArg = DiffMode ? " --diff" : string.Empty;
-        await RunProcess($"--config \"{_configPath}\" lint{diffArg}", "Linting model");
+        // CLI exits non-zero when rules fail; results JSON is still written, so allow non-zero.
+        var exitCode = await RunProcessAllowNonZero($"--config \"{_configPath}\" lint{diffArg}", "Linting model");
+        if (exitCode != 0)
+        {
+            LogInfo($"Lint finished with exit code {exitCode} (rule findings are expected to be non-zero).");
+        }
     }
 
     public async Task AddNoqaRules(IEnumerable<NoqaDocumentRules> entries)
@@ -222,6 +233,15 @@ public class MxLint
 
     private async Task RunProcess(string arguments, string operationName)
     {
+        var exitCode = await RunProcessAllowNonZero(arguments, operationName);
+        if (exitCode != 0)
+        {
+            throw new InvalidOperationException($"{operationName} failed with exit code {exitCode}");
+        }
+    }
+
+    private async Task<int> RunProcessAllowNonZero(string arguments, string operationName)
+    {
         LogInfo($"Starting process for {operationName}. Executable: {_executablePath}; Arguments: {arguments}");
         var startInfo = new ProcessStartInfo
         {
@@ -250,23 +270,12 @@ public class MxLint
             }
         };
 
-        try
-        {
-            process.Start();
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
-            await process.WaitForExitAsync();
-            if (process.ExitCode != 0)
-            {
-                throw new InvalidOperationException($"{operationName} failed with exit code {process.ExitCode}");
-            }
-
-            LogInfo($"Finished {operationName}");
-        }
-        catch (Exception ex)
-        {
-            LogError($"Error during {operationName}: {ex.Message}", ex);
-        }
+        process.Start();
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
+        await process.WaitForExitAsync();
+        LogInfo($"Finished {operationName} with exit code {process.ExitCode}");
+        return process.ExitCode;
     }
 
     private async Task EnsureCli()
