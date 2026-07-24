@@ -192,6 +192,34 @@ public class MxLint
         await WriteConfig(config);
     }
 
+    public async Task<(bool Diff, bool AutoRefresh)> GetUiSettings()
+    {
+        EnsureCacheDirectory();
+        await EnsureConfigFile();
+        var config = await ReadConfig();
+        config.Ui ??= new MxLintConfigUi();
+        return (config.Ui.Diff ?? true, config.Ui.AutoRefresh ?? true);
+    }
+
+    public async Task SaveUiSettings(bool? diff = null, bool? autoRefresh = null)
+    {
+        EnsureCacheDirectory();
+        await EnsureConfigFile();
+        var config = await ReadConfig();
+        config.Ui ??= new MxLintConfigUi();
+
+        if (diff.HasValue)
+        {
+            config.Ui.Diff = diff.Value;
+        }
+        if (autoRefresh.HasValue)
+        {
+            config.Ui.AutoRefresh = autoRefresh.Value;
+        }
+
+        await WriteConfig(config);
+    }
+
     private async Task RunProcess(string arguments, string operationName)
     {
         LogInfo($"Starting process for {operationName}. Executable: {_executablePath}; Arguments: {arguments}");
@@ -559,6 +587,10 @@ public sealed class MxLintConfigCli
 public sealed class MxLintConfigUi
 {
     public List<string> Bookmarks { get; set; } = new();
+    /// <summary>When true, lint uses --diff. Null means default (true).</summary>
+    public bool? Diff { get; set; }
+    /// <summary>When true, extension auto-runs lint on refresh. Null means default (true).</summary>
+    public bool? AutoRefresh { get; set; }
 }
 
 public sealed class MxLintConfigSkipRule

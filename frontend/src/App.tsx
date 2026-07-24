@@ -129,14 +129,9 @@ const App: React.FC = () => {
 
   // UI state
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
-  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState<boolean>(() => {
-    const saved = localStorage.getItem('mxlint:autoRefreshEnabled');
-    return saved == null ? true : saved === 'true';
-  });
-  const [diffModeEnabled, setDiffModeEnabled] = useState<boolean>(() => {
-    const saved = localStorage.getItem('mxlint:diffModeEnabled');
-    return saved == null ? true : saved === 'true';
-  });
+  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
+  const [diffModeEnabled, setDiffModeEnabled] = useState(true);
+  const [uiSettingsReady, setUiSettingsReady] = useState(false);
   const [selectedRowIndex, setSelectedRowIndex] = useState(-1);
   const [selectedIssues, setSelectedIssues] = useState<Set<string>>(() => new Set());
   const [showIssueModal, setShowIssueModal] = useState(false);
@@ -350,6 +345,10 @@ const App: React.FC = () => {
 
   // Auto-refresh - use setTimeout to avoid synchronous setState in effect
   useEffect(() => {
+    if (!uiSettingsReady) {
+      return;
+    }
+
     const timeoutId = setTimeout(() => void refreshData(), 0);
     if (!autoRefreshEnabled) return () => clearTimeout(timeoutId);
 
@@ -368,17 +367,50 @@ const App: React.FC = () => {
       clearTimeout(timeoutId);
       clearInterval(interval);
     };
-  }, [refreshData, autoRefreshEnabled]);
+  }, [refreshData, autoRefreshEnabled, uiSettingsReady]);
 
   useEffect(() => {
-    localStorage.setItem('mxlint:autoRefreshEnabled', String(autoRefreshEnabled));
+    const loadUiSettings = async () => {
+      try {
+        const response = await fetch('./api/ui-settings');
+        if (response.ok) {
+          const payload = await response.json() as {
+            success?: boolean;
+            diffModeEnabled?: boolean;
+            autoRefreshEnabled?: boolean;
+          };
+          if (payload.success) {
+            if (typeof payload.diffModeEnabled === 'boolean') {
+              setDiffModeEnabled(payload.diffModeEnabled);
+            }
+            if (typeof payload.autoRefreshEnabled === 'boolean') {
+              setAutoRefreshEnabled(payload.autoRefreshEnabled);
+            }
+          }
+        }
+      } catch {
+        // Keep defaults if loading fails.
+      } finally {
+        setUiSettingsReady(true);
+      }
+    };
+
+    void loadUiSettings();
+  }, []);
+
+  useEffect(() => {
+    if (!uiSettingsReady) {
+      return;
+    }
     void sendExtensionMessage('setAutoRefresh', { enabled: autoRefreshEnabled });
-  }, [autoRefreshEnabled]);
+  }, [autoRefreshEnabled, uiSettingsReady]);
 
   useEffect(() => {
-    localStorage.setItem('mxlint:diffModeEnabled', String(diffModeEnabled));
+    if (!uiSettingsReady) {
+      return;
+    }
     void sendExtensionMessage('setDiffMode', { enabled: diffModeEnabled });
-  }, [diffModeEnabled]);
+  }, [diffModeEnabled, uiSettingsReady]);
 
   useEffect(() => {
     const loadVersion = async () => {

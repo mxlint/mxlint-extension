@@ -75,6 +75,8 @@ public class MxLintWebServerExtension : WebServerExtension
         webServer.AddRoute("wwwroot/api/config", ServeConfig);
         webServer.AddRoute("api/bookmarks", ServeBookmarks);
         webServer.AddRoute("wwwroot/api/bookmarks", ServeBookmarks);
+        webServer.AddRoute("api/ui-settings", ServeUiSettings);
+        webServer.AddRoute("wwwroot/api/ui-settings", ServeUiSettings);
         webServer.AddRoute("api/runlint", ServeRunLint);
         webServer.AddRoute("wwwroot/api/runlint", ServeRunLint);
         webServer.AddRoute("api/message", ServeMessage);
@@ -412,6 +414,77 @@ public class MxLintWebServerExtension : WebServerExtension
         response.SendNoBodyAndClose(405);
     }
 
+    private async Task ServeUiSettings(HttpListenerRequest request, HttpListenerResponse response, CancellationToken ct)
+    {
+        WriteDebugToMxLintLog(CurrentApp, $"ServeUiSettings hit: {request.HttpMethod} {request.Url}");
+
+        if (CurrentApp == null)
+        {
+            response.SendNoBodyAndClose(404);
+            return;
+        }
+
+        var mxlint = new MxLint(CurrentApp, _logService);
+
+        if (string.Equals(request.HttpMethod, "GET", StringComparison.OrdinalIgnoreCase))
+        {
+            var (diff, autoRefresh) = await mxlint.GetUiSettings();
+            _diffModeEnabled = diff;
+            _autoRefreshEnabled = autoRefresh;
+            SendJson(response, new
+            {
+                success = true,
+                diffModeEnabled = diff,
+                autoRefreshEnabled = autoRefresh
+            });
+            return;
+        }
+
+        if (string.Equals(request.HttpMethod, "POST", StringComparison.OrdinalIgnoreCase))
+        {
+            try
+            {
+                using var reader = new StreamReader(request.InputStream, request.ContentEncoding ?? Encoding.UTF8);
+                var body = await reader.ReadToEndAsync(ct);
+                var payload = JsonSerializer.Deserialize<UiSettingsUpdateRequest>(body, JsonOptions);
+                if (payload == null)
+                {
+                    SendJson(response, new { success = false, error = "Invalid ui-settings payload." }, 400);
+                    return;
+                }
+
+                if (payload.DiffModeEnabled.HasValue)
+                {
+                    _diffModeEnabled = payload.DiffModeEnabled.Value;
+                }
+                if (payload.AutoRefreshEnabled.HasValue)
+                {
+                    _autoRefreshEnabled = payload.AutoRefreshEnabled.Value;
+                }
+
+                await mxlint.SaveUiSettings(
+                    diff: payload.DiffModeEnabled,
+                    autoRefresh: payload.AutoRefreshEnabled);
+
+                SendJson(response, new
+                {
+                    success = true,
+                    diffModeEnabled = _diffModeEnabled,
+                    autoRefreshEnabled = _autoRefreshEnabled
+                });
+            }
+            catch (Exception ex)
+            {
+                _logService.Error($"Failed to update ui settings: {ex.Message}");
+                SendJson(response, new { success = false, error = ex.Message }, 500);
+            }
+
+            return;
+        }
+
+        response.SendNoBodyAndClose(405);
+    }
+
     private async Task ServeMessage(HttpListenerRequest request, HttpListenerResponse response, CancellationToken ct)
     {
         _logService.Info($"ServeMessage hit: {request.HttpMethod} {request.Url}");
@@ -462,12 +535,28 @@ public class MxLintWebServerExtension : WebServerExtension
             case "setAutoRefresh":
                 _autoRefreshEnabled = ParseBoolean(data);
                 _logService.Info($"Auto refresh set to {_autoRefreshEnabled} via HTTP message");
+                try
+                {
+                    await new MxLint(CurrentApp, _logService).SaveUiSettings(autoRefresh: _autoRefreshEnabled);
+                }
+                catch (Exception ex)
+                {
+                    _logService.Error($"Failed to persist autoRefresh setting: {ex.Message}");
+                }
                 SendJson(response, new { success = true, autoRefreshEnabled = _autoRefreshEnabled });
                 return;
 
             case "setDiffMode":
                 _diffModeEnabled = ParseBoolean(data);
                 _logService.Info($"Diff mode set to {_diffModeEnabled} via HTTP message");
+                try
+                {
+                    await new MxLint(CurrentApp, _logService).SaveUiSettings(diff: _diffModeEnabled);
+                }
+                catch (Exception ex)
+                {
+                    _logService.Error($"Failed to persist diff setting: {ex.Message}");
+                }
                 SendJson(response, new { success = true, diffModeEnabled = _diffModeEnabled });
                 return;
 
@@ -681,6 +770,12 @@ public sealed class ConfigUpdateRequest
 public sealed class BookmarksUpdateRequest
 {
     public List<string> Bookmarks { get; set; } = new();
+}
+
+public sealed class UiSettingsUpdateRequest
+{
+    public bool? DiffModeEnabled { get; set; }
+    public bool? AutoRefreshEnabled { get; set; }
 }
 
 public sealed class FrontendMessageRequest
