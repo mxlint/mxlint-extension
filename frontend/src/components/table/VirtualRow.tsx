@@ -29,9 +29,12 @@ export const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
   onToggleSelection,
   onSelectRow,
 }) => {
-  const { id, name, rule, status, module, docname, doctype } = testcase;
+  const { id, name, rule, status, module, docname, doctype, originalPath } = testcase;
   const isClickable = isOpenableDocument(docname);
   const skipReason = status === 'skip' ? testcase.skipped?.message?.trim() : '';
+  const documentTitle = originalPath && originalPath !== name
+    ? `${docname}\nOriginal: ${originalPath}\nDisk: ${name}`
+    : docname;
 
   const handleDocClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -75,7 +78,7 @@ export const VirtualRow: React.FC<VirtualRowProps> = React.memo(({
       <td className="col-severity">
         <SeverityCell severity={rule?.severity} />
       </td>
-      <td className="col-document" title={docname}>
+      <td className="col-document" title={documentTitle}>
         {isClickable ? (
           <a href="#" className="document-link" onClick={handleDocClick}>{docname}</a>
         ) : (

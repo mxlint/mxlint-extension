@@ -225,7 +225,7 @@ const App: React.FC = () => {
       if (showBookmarkedOnly && !bookmarkedIds.has(getBookmarkKey(tc))) continue;
 
       if (searchLower) {
-        const searchable = `${tc.docname} ${tc.module} ${tc.doctype} ${tc.rule?.ruleName || ''} ${tc.rule?.category || ''} ${tc.rule?.title || ''}`.toLowerCase();
+        const searchable = `${tc.docname} ${tc.originalPath} ${tc.name} ${tc.module} ${tc.doctype} ${tc.rule?.ruleName || ''} ${tc.rule?.category || ''} ${tc.rule?.title || ''}`.toLowerCase();
         if (!searchable.includes(searchLower)) continue;
       }
 
@@ -258,7 +258,7 @@ const App: React.FC = () => {
       if (showBookmarkedOnly && !bookmarkedIds.has(getBookmarkKey(tc))) continue;
 
       if (searchLower) {
-        const searchable = `${tc.docname} ${tc.module} ${tc.doctype} ${tc.rule?.ruleName || ''} ${tc.rule?.category || ''} ${tc.rule?.title || ''} ${tc.failure?.message || ''}`.toLowerCase();
+        const searchable = `${tc.docname} ${tc.originalPath} ${tc.name} ${tc.module} ${tc.doctype} ${tc.rule?.ruleName || ''} ${tc.rule?.category || ''} ${tc.rule?.title || ''} ${tc.failure?.message || ''}`.toLowerCase();
         if (!searchable.includes(searchLower)) continue;
       }
 
@@ -713,11 +713,11 @@ const App: React.FC = () => {
   }, [resetSelectionAndScroll]);
 
   const handleExport = useCallback(() => {
-    const headers = ['Severity', 'Document', 'Module', 'Type', 'Rule', 'Category', 'Status', 'Error'];
+    const headers = ['Severity', 'Document', 'OriginalPath', 'Module', 'Type', 'Rule', 'Category', 'Status', 'Error'];
     const rows = [headers.join(',')];
     for (const tc of filteredTestcases) {
       rows.push([
-        tc.rule?.severity || '', tc.docname, tc.module, tc.doctype,
+        tc.rule?.severity || '', tc.docname, tc.originalPath || tc.name, tc.module, tc.doctype,
         tc.rule?.ruleName || '', tc.rule?.category || '', tc.status,
         (tc.failure?.message || '').replace(/"/g, '""').replace(/\n/g, ' ')
       ].map(c => `"${c}"`).join(','));
