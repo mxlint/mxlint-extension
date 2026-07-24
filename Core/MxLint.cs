@@ -12,7 +12,7 @@ namespace com.cinaq.MxLintExtension.Core;
 public class MxLint
 {
     private const string DefaultNoqaReason = "Skipped from MxLint extension";
-    internal const string DefaultCliVersion = "v3.14.2";
+    internal const string DefaultCliVersion = "v3.17.0";
     private readonly IModel _model;
     private readonly ILogService _logService;
     private string _executablePath;
