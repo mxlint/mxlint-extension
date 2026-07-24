@@ -43,10 +43,10 @@ public class MxLint
     /// </summary>
     public async Task<bool> Lint()
     {
-        LogInfo("Starting lint workflow.");
+        EnsureCacheDirectory();
+        LogInfo("======== Lint run started ========");
         try
         {
-            EnsureCacheDirectory();
             LogInfo($"Cache directory: {_cachePath}");
             LogInfo($"Config path: {_configPath}");
             LogInfo($"Lint results path: {_lintResultsPath}");
@@ -55,12 +55,38 @@ public class MxLint
             await ExportModel();
             await LintModel();
             LogInfo("Lint workflow completed.");
+            LogInfo("======== Lint run finished ========");
             return true;
         }
         catch (Exception ex)
         {
             LogError($"Error during linting process: {ex.Message}", ex);
+            LogInfo("======== Lint run failed ========");
             return false;
+        }
+    }
+
+    public string ReadCliLog(int maxCharacters = 500_000)
+    {
+        EnsureCacheDirectory();
+        if (!File.Exists(_logFilePath))
+        {
+            return string.Empty;
+        }
+
+        try
+        {
+            var content = File.ReadAllText(_logFilePath);
+            if (content.Length <= maxCharacters)
+            {
+                return content;
+            }
+
+            return content[^maxCharacters..];
+        }
+        catch (Exception ex)
+        {
+            return $"[ERROR] Failed to read CLI log: {ex.Message}";
         }
     }
 
@@ -259,14 +285,14 @@ public class MxLint
         {
             if (e.Data != null)
             {
-                LogInfo(e.Data);
+                LogInfo($"[cli] {e.Data}");
             }
         };
         process.ErrorDataReceived += (_, e) =>
         {
             if (e.Data != null)
             {
-                LogError(e.Data);
+                LogError($"[cli] {e.Data}");
             }
         };
 

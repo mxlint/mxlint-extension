@@ -77,6 +77,8 @@ public class MxLintWebServerExtension : WebServerExtension
         webServer.AddRoute("wwwroot/api/bookmarks", ServeBookmarks);
         webServer.AddRoute("api/ui-settings", ServeUiSettings);
         webServer.AddRoute("wwwroot/api/ui-settings", ServeUiSettings);
+        webServer.AddRoute("api/cli-log", ServeCliLog);
+        webServer.AddRoute("wwwroot/api/cli-log", ServeCliLog);
         webServer.AddRoute("api/runlint", ServeRunLint);
         webServer.AddRoute("wwwroot/api/runlint", ServeRunLint);
         webServer.AddRoute("api/message", ServeMessage);
@@ -492,6 +494,37 @@ public class MxLintWebServerExtension : WebServerExtension
         }
 
         response.SendNoBodyAndClose(405);
+    }
+
+    private Task ServeCliLog(HttpListenerRequest request, HttpListenerResponse response, CancellationToken ct)
+    {
+        WriteDebugToMxLintLog(CurrentApp, $"ServeCliLog hit: {request.HttpMethod} {request.Url}");
+
+        if (CurrentApp == null)
+        {
+            response.SendNoBodyAndClose(404);
+            return Task.CompletedTask;
+        }
+
+        if (!string.Equals(request.HttpMethod, "GET", StringComparison.OrdinalIgnoreCase))
+        {
+            response.SendNoBodyAndClose(405);
+            return Task.CompletedTask;
+        }
+
+        try
+        {
+            var mxlint = new MxLint(CurrentApp, _logService);
+            var content = mxlint.ReadCliLog();
+            SendJson(response, new { success = true, content });
+        }
+        catch (Exception ex)
+        {
+            _logService.Error($"Failed to read CLI log: {ex.Message}");
+            SendJson(response, new { success = false, error = ex.Message }, 500);
+        }
+
+        return Task.CompletedTask;
     }
 
     private async Task ServeMessage(HttpListenerRequest request, HttpListenerResponse response, CancellationToken ct)
