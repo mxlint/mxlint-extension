@@ -53,6 +53,15 @@ public class MxLint
             await EnsureConfigFile();
             await EnsureCli();
             await ExportModel();
+            await InitModelsource();
+            if (!await ProjectHasPendingGitChanges())
+            {
+                await CommitModelsource();
+            }
+            else
+            {
+                LogInfo("Project git has pending changes; skipping modelsource commit.");
+            }
             await LintModel();
             LogInfo("Lint workflow completed.");
             LogInfo("======== Lint run finished ========");
@@ -95,6 +104,16 @@ public class MxLint
         await RunProcess($"--config \"{_configPath}\" export", "Exporting model");
     }
 
+    public async Task InitModelsource()
+    {
+        await RunProcess($"--config \"{_configPath}\" init", "Initializing modelsource");
+    }
+
+    public async Task CommitModelsource()
+    {
+        await RunProcess($"--config \"{_configPath}\" commit", "Committing modelsource");
+    }
+
     public async Task LintModel()
     {
         var diffArg = DiffMode ? " --diff" : string.Empty;
@@ -103,6 +122,56 @@ public class MxLint
         if (exitCode != 0)
         {
             LogInfo($"Lint finished with exit code {exitCode} (rule findings are expected to be non-zero).");
+        }
+    }
+
+    /// <summary>
+    /// Returns true when the Mendix project directory has pending git changes.
+    /// Non-git directories, missing git, and git errors are treated as no pending changes.
+    /// </summary>
+    internal async Task<bool> ProjectHasPendingGitChanges()
+    {
+        return await DirectoryHasPendingGitChanges(_model.Root.DirectoryPath, LogInfo);
+    }
+
+    internal static async Task<bool> DirectoryHasPendingGitChanges(string directoryPath, Action<string>? log = null)
+    {
+        try
+        {
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = "git",
+                Arguments = "status --porcelain",
+                WorkingDirectory = directoryPath,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+
+            using var process = new Process { StartInfo = startInfo };
+            process.Start();
+            var stdout = await process.StandardOutput.ReadToEndAsync();
+            var stderr = await process.StandardError.ReadToEndAsync();
+            await process.WaitForExitAsync();
+
+            if (process.ExitCode != 0)
+            {
+                log?.Invoke(
+                    $"Project git status unavailable (exit {process.ExitCode}); treating as no pending changes. {stderr.Trim()}");
+                return false;
+            }
+
+            var hasPending = !string.IsNullOrWhiteSpace(stdout);
+            log?.Invoke(hasPending
+                ? "Project git has pending changes."
+                : "Project git working tree is clean.");
+            return hasPending;
+        }
+        catch (Exception ex)
+        {
+            log?.Invoke($"Project git status check failed; treating as no pending changes. {ex.Message}");
+            return false;
         }
     }
 
