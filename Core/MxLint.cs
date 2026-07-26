@@ -12,7 +12,7 @@ namespace com.cinaq.MxLintExtension.Core;
 public class MxLint
 {
     private const string DefaultNoqaReason = "Skipped from MxLint extension";
-    internal const string DefaultCliVersion = "v3.17.0";
+    internal const string DefaultCliVersion = "v3.17.2";
     private readonly IModel _model;
     private readonly ILogService _logService;
     private string _executablePath;
@@ -423,8 +423,8 @@ public class MxLint
         {
             return architecture switch
             {
-                Architecture.Arm64 => $"mxlint-{normalizedVersion}-windows-arm64.exe",
-                _ => $"mxlint-{normalizedVersion}-windows-amd64.exe"
+                Architecture.Arm64 => $"mxlint-{normalizedVersion}-windows-arm64-signed.exe",
+                _ => $"mxlint-{normalizedVersion}-windows-amd64-signed.exe"
             };
         }
 
