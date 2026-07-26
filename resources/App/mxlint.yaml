@@ -20,7 +20,7 @@ serve:
   port: 8082
   debounce: 500
 cli:
-  version: v3.16.0
+  version: v3.17.2
 ui:
   bookmarks: []
 modelsource: modelsource
