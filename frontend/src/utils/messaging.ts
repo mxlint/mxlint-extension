@@ -13,6 +13,8 @@ const sendDiag = (event: string, detail: string): void => {
 type ExtensionMessageResponse = {
   success?: boolean;
   error?: string;
+  ran?: boolean;
+  lintSucceeded?: boolean;
   transport?: 'bridge' | 'http';
 };
 

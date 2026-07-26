@@ -129,14 +129,10 @@ const App: React.FC = () => {
 
   // UI state
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
-  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState<boolean>(() => {
-    const saved = localStorage.getItem('mxlint:autoRefreshEnabled');
-    return saved == null ? true : saved === 'true';
-  });
-  const [diffModeEnabled, setDiffModeEnabled] = useState<boolean>(() => {
-    const saved = localStorage.getItem('mxlint:diffModeEnabled');
-    return saved == null ? true : saved === 'true';
-  });
+  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
+  const [diffModeEnabled, setDiffModeEnabled] = useState(true);
+  const [uiSettingsReady, setUiSettingsReady] = useState(false);
+  const [lintResultsOutdated, setLintResultsOutdated] = useState(false);
   const [selectedRowIndex, setSelectedRowIndex] = useState(-1);
   const [selectedIssues, setSelectedIssues] = useState<Set<string>>(() => new Set());
   const [showIssueModal, setShowIssueModal] = useState(false);
@@ -225,7 +221,7 @@ const App: React.FC = () => {
       if (showBookmarkedOnly && !bookmarkedIds.has(getBookmarkKey(tc))) continue;
 
       if (searchLower) {
-        const searchable = `${tc.docname} ${tc.module} ${tc.doctype} ${tc.rule?.ruleName || ''} ${tc.rule?.category || ''} ${tc.rule?.title || ''}`.toLowerCase();
+        const searchable = `${tc.docname} ${tc.originalPath} ${tc.name} ${tc.module} ${tc.doctype} ${tc.rule?.ruleName || ''} ${tc.rule?.category || ''} ${tc.rule?.title || ''}`.toLowerCase();
         if (!searchable.includes(searchLower)) continue;
       }
 
@@ -258,7 +254,7 @@ const App: React.FC = () => {
       if (showBookmarkedOnly && !bookmarkedIds.has(getBookmarkKey(tc))) continue;
 
       if (searchLower) {
-        const searchable = `${tc.docname} ${tc.module} ${tc.doctype} ${tc.rule?.ruleName || ''} ${tc.rule?.category || ''} ${tc.rule?.title || ''} ${tc.failure?.message || ''}`.toLowerCase();
+        const searchable = `${tc.docname} ${tc.originalPath} ${tc.name} ${tc.module} ${tc.doctype} ${tc.rule?.ruleName || ''} ${tc.rule?.category || ''} ${tc.rule?.title || ''} ${tc.failure?.message || ''}`.toLowerCase();
         if (!searchable.includes(searchLower)) continue;
       }
 
@@ -338,6 +334,8 @@ const App: React.FC = () => {
       if (message === 'refreshData') await refreshData();
       else if (message === 'start') setIsLoading(true);
       else if (message === 'end') setIsLoading(false);
+      else if (message === 'lintSucceeded') setLintResultsOutdated(false);
+      else if (message === 'lintFailed') setLintResultsOutdated(true);
     };
 
     if (addWebviewMessageListener(handleMessage)) {
@@ -350,6 +348,10 @@ const App: React.FC = () => {
 
   // Auto-refresh - use setTimeout to avoid synchronous setState in effect
   useEffect(() => {
+    if (!uiSettingsReady) {
+      return;
+    }
+
     const timeoutId = setTimeout(() => void refreshData(), 0);
     if (!autoRefreshEnabled) return () => clearTimeout(timeoutId);
 
@@ -359,6 +361,11 @@ const App: React.FC = () => {
         // In no-bridge environments (macOS), the backend cannot push refreshData events.
         // Pull updated results after a successful refresh trigger.
         if (result.transport === 'http' && result.success) {
+          if (result.ran && result.lintSucceeded === false) {
+            setLintResultsOutdated(true);
+          } else if (result.ran && result.lintSucceeded) {
+            setLintResultsOutdated(false);
+          }
           await refreshData();
         }
       })();
@@ -368,17 +375,50 @@ const App: React.FC = () => {
       clearTimeout(timeoutId);
       clearInterval(interval);
     };
-  }, [refreshData, autoRefreshEnabled]);
+  }, [refreshData, autoRefreshEnabled, uiSettingsReady]);
 
   useEffect(() => {
-    localStorage.setItem('mxlint:autoRefreshEnabled', String(autoRefreshEnabled));
+    const loadUiSettings = async () => {
+      try {
+        const response = await fetch('./api/ui-settings');
+        if (response.ok) {
+          const payload = await response.json() as {
+            success?: boolean;
+            diffModeEnabled?: boolean;
+            autoRefreshEnabled?: boolean;
+          };
+          if (payload.success) {
+            if (typeof payload.diffModeEnabled === 'boolean') {
+              setDiffModeEnabled(payload.diffModeEnabled);
+            }
+            if (typeof payload.autoRefreshEnabled === 'boolean') {
+              setAutoRefreshEnabled(payload.autoRefreshEnabled);
+            }
+          }
+        }
+      } catch {
+        // Keep defaults if loading fails.
+      } finally {
+        setUiSettingsReady(true);
+      }
+    };
+
+    void loadUiSettings();
+  }, []);
+
+  useEffect(() => {
+    if (!uiSettingsReady) {
+      return;
+    }
     void sendExtensionMessage('setAutoRefresh', { enabled: autoRefreshEnabled });
-  }, [autoRefreshEnabled]);
+  }, [autoRefreshEnabled, uiSettingsReady]);
 
   useEffect(() => {
-    localStorage.setItem('mxlint:diffModeEnabled', String(diffModeEnabled));
+    if (!uiSettingsReady) {
+      return;
+    }
     void sendExtensionMessage('setDiffMode', { enabled: diffModeEnabled });
-  }, [diffModeEnabled]);
+  }, [diffModeEnabled, uiSettingsReady]);
 
   useEffect(() => {
     const loadVersion = async () => {
@@ -551,11 +591,18 @@ const App: React.FC = () => {
       if (payload.transport === 'bridge') {
         success('Manual lint run started.');
       } else {
+        if (payload.lintSucceeded === false) {
+          setLintResultsOutdated(true);
+          toastError(payload.error || 'Lint failed. Displayed results may be outdated.');
+        } else {
+          setLintResultsOutdated(false);
+          success('Manual lint run completed.');
+        }
         await refreshData();
-        success('Manual lint run completed.');
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to run lint.';
+      setLintResultsOutdated(true);
       toastError(message);
     }
   }, [refreshData, sendDiag, success, toastError]);
@@ -713,11 +760,11 @@ const App: React.FC = () => {
   }, [resetSelectionAndScroll]);
 
   const handleExport = useCallback(() => {
-    const headers = ['Severity', 'Document', 'Module', 'Type', 'Rule', 'Category', 'Status', 'Error'];
+    const headers = ['Severity', 'Document', 'OriginalPath', 'Module', 'Type', 'Rule', 'Category', 'Status', 'Error'];
     const rows = [headers.join(',')];
     for (const tc of filteredTestcases) {
       rows.push([
-        tc.rule?.severity || '', tc.docname, tc.module, tc.doctype,
+        tc.rule?.severity || '', tc.docname, tc.originalPath || tc.name, tc.module, tc.doctype,
         tc.rule?.ruleName || '', tc.rule?.category || '', tc.status,
         (tc.failure?.message || '').replace(/"/g, '""').replace(/\n/g, ' ')
       ].map(c => `"${c}"`).join(','));
@@ -1049,6 +1096,20 @@ const App: React.FC = () => {
 
   return (
     <div className="lint-pane">
+      {lintResultsOutdated && (
+        <div className="lint-outdated-banner" role="alert">
+          <strong>Lint failed.</strong> The results below may be outdated. Fix the error and run lint again.
+          <button
+            type="button"
+            className="lint-outdated-banner__dismiss"
+            onClick={() => setLintResultsOutdated(false)}
+            title="Dismiss warning"
+            aria-label="Dismiss warning"
+          >
+            ×
+          </button>
+        </div>
+      )}
       {/* Toolbar */}
       <div className="lint-pane-toolbar">
         <div className="toolbar-group toolbar-group--status">

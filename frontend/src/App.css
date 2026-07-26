@@ -27,6 +27,92 @@ html, body {
   box-sizing: border-box;
 }
 
+.lint-outdated-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 8px 12px;
+  background: var(--ui-color-warning-bg);
+  color: var(--ui-color-warning-text);
+  border-bottom: 1px solid var(--ui-color-warning);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.lint-outdated-banner strong {
+  font-weight: 600;
+}
+
+.lint-outdated-banner__dismiss {
+  margin-left: auto;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0 4px;
+  opacity: 0.8;
+}
+
+.lint-outdated-banner__dismiss:hover {
+  opacity: 1;
+}
+
+.cli-log-pane {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  min-height: 0;
+  background: var(--ui-bg-primary);
+  color: var(--ui-text-primary);
+}
+
+.cli-log-pane-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--ui-border-primary);
+  background: var(--ui-bg-tertiary);
+  flex-shrink: 0;
+}
+
+.cli-log-pane-title {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.cli-log-pane-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cli-log-viewer {
+  margin: 0;
+  padding: 10px 12px;
+  overflow: auto;
+  background: var(--ui-bg-secondary);
+  border: 1px solid var(--ui-border-primary);
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 11px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--ui-text-primary);
+}
+
+.cli-log-viewer--pane {
+  flex: 1;
+  min-height: 0;
+  margin: 8px;
+  border-radius: 4px;
+}
+
 /* ========== Toolbar ========== */
 .lint-pane-toolbar {
   display: flex;

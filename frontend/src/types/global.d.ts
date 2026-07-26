@@ -11,6 +11,8 @@ export interface SkippedInfo {
 
 export interface RawTestCase {
   name: string;
+  /** Mendix logical path when disk path was sanitized/truncated; equals name when unchanged. */
+  originalPath?: string;
   time: number;
   failure?: TestCaseFailure;
   skipped?: SkippedInfo;
@@ -51,6 +53,8 @@ export type Status = 'pass' | 'skip' | 'fail';
 
 export interface ProcessedTestCase {
   name: string;
+  /** Mendix logical path used for display when present; falls back to name. */
+  originalPath: string;
   time: number;
   failure?: TestCaseFailure;
   skipped?: SkippedInfo;

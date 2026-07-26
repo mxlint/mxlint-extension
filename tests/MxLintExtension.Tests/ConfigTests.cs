@@ -73,6 +73,35 @@ public class ConfigTests : IDisposable
         Assert.False(config.Export.Appstore);
     }
 
+    [Fact]
+    public async Task UiSettings_DefaultToTrue_WhenUnset()
+    {
+        var mxlint = new MxLint(_fixture.Model, _fixture.LogService);
+        await mxlint.EnsureConfigFile();
+
+        var (diff, autoRefresh) = await mxlint.GetUiSettings();
+
+        Assert.True(diff);
+        Assert.True(autoRefresh);
+    }
+
+    [Fact]
+    public async Task UiSettings_PersistsDiffAndAutoRefresh()
+    {
+        var mxlint = new MxLint(_fixture.Model, _fixture.LogService);
+        await mxlint.EnsureConfigFile();
+
+        await mxlint.SaveUiSettings(diff: false, autoRefresh: false);
+        var (diff, autoRefresh) = await mxlint.GetUiSettings();
+
+        Assert.False(diff);
+        Assert.False(autoRefresh);
+
+        var config = DeserializeConfig(await File.ReadAllTextAsync(_fixture.ConfigPath));
+        Assert.False(config.Ui.Diff);
+        Assert.False(config.Ui.AutoRefresh);
+    }
+
     private static MxLintConfig DeserializeConfig(string yaml)
     {
         var deserializer = new DeserializerBuilder()

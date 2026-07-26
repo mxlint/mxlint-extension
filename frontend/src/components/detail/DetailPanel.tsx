@@ -20,10 +20,11 @@ export const DetailPanel: React.FC<DetailPanelProps> = React.memo(({ testcase, o
     );
   }
 
-  const { rule, status, module, docname, doctype } = testcase;
+  const { rule, status, module, docname, doctype, name, originalPath } = testcase;
   const severityClass = rule?.severity?.toLowerCase() || 'low';
   const isClickable = isOpenableDocument(docname);
   const errorMessages = status === 'fail' ? getErrorMessages(testcase) : [];
+  const hasDistinctOriginalPath = Boolean(originalPath && originalPath !== name);
 
   const handleOpenDoc = () => {
     if (isClickable) {
@@ -84,6 +85,18 @@ export const DetailPanel: React.FC<DetailPanelProps> = React.memo(({ testcase, o
               <span className="detail-label">Category:</span>
               <span className="detail-value">{rule?.category || 'N/A'}</span>
             </div>
+            {hasDistinctOriginalPath && (
+              <>
+                <div className="detail-meta-item">
+                  <span className="detail-label">Original path:</span>
+                  <span className="detail-value" title={originalPath}>{originalPath}</span>
+                </div>
+                <div className="detail-meta-item">
+                  <span className="detail-label">Disk path:</span>
+                  <span className="detail-value" title={name}>{name}</span>
+                </div>
+              </>
+            )}
           </div>
         </div>
 

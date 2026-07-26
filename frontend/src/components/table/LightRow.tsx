@@ -17,6 +17,9 @@ export const LightRow: React.FC<LightRowProps> = ({ tc, isChecked, isSelected, o
   const isClickable = isOpenableDocument(tc.docname);
   const rowClass = `${isChecked ? 'checked-row ' : ''}${isSelected ? 'selected-row' : ''}`.trim();
   const skipReason = tc.status === 'skip' ? tc.skipped?.message?.trim() : '';
+  const documentTitle = tc.originalPath && tc.originalPath !== tc.name
+    ? `${tc.docname}\nOriginal: ${tc.originalPath}\nDisk: ${tc.name}`
+    : tc.docname;
 
   return (
     <tr className={rowClass || undefined} onClick={() => onSelectRow(tc.id)}>
@@ -24,7 +27,7 @@ export const LightRow: React.FC<LightRowProps> = ({ tc, isChecked, isSelected, o
         <input type="checkbox" checked={isChecked} onChange={() => onToggleSelection(tc.id)} className="row-checkbox" />
       </td>
       <td className="col-severity"><SeverityCell severity={tc.rule?.severity} /></td>
-      <td className="col-document" title={tc.docname}>
+      <td className="col-document" title={documentTitle}>
         {isClickable ? (
           <a
             href="#"

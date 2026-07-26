@@ -12,7 +12,7 @@ namespace com.cinaq.MxLintExtension.Core;
 public class MxLint
 {
     private const string DefaultNoqaReason = "Skipped from MxLint extension";
-    internal const string DefaultCliVersion = "v3.14.2";
+    internal const string DefaultCliVersion = "v3.17.2";
     private readonly IModel _model;
     private readonly ILogService _logService;
     private string _executablePath;
@@ -37,24 +37,65 @@ public class MxLint
         _logFilePath = Path.Combine(_cachePath, "mxlint.logs");
     }
 
-    public async Task Lint()
+    /// <summary>
+    /// Runs export + lint. Returns false when the workflow fails (CLI crash, export error, etc.).
+    /// Non-zero lint exit due to rule findings still counts as success because results were written.
+    /// </summary>
+    public async Task<bool> Lint()
     {
-        LogInfo("Starting lint workflow.");
+        EnsureCacheDirectory();
+        LogInfo("======== Lint run started ========");
         try
         {
-            EnsureCacheDirectory();
             LogInfo($"Cache directory: {_cachePath}");
             LogInfo($"Config path: {_configPath}");
             LogInfo($"Lint results path: {_lintResultsPath}");
             await EnsureConfigFile();
             await EnsureCli();
             await ExportModel();
+            await InitModelsource();
+            if (!await ProjectHasPendingGitChanges())
+            {
+                await CommitModelsource();
+            }
+            else
+            {
+                LogInfo("Project git has pending changes; skipping modelsource commit.");
+            }
             await LintModel();
             LogInfo("Lint workflow completed.");
+            LogInfo("======== Lint run finished ========");
+            return true;
         }
         catch (Exception ex)
         {
             LogError($"Error during linting process: {ex.Message}", ex);
+            LogInfo("======== Lint run failed ========");
+            return false;
+        }
+    }
+
+    public string ReadCliLog(int maxCharacters = 500_000)
+    {
+        EnsureCacheDirectory();
+        if (!File.Exists(_logFilePath))
+        {
+            return string.Empty;
+        }
+
+        try
+        {
+            var content = File.ReadAllText(_logFilePath);
+            if (content.Length <= maxCharacters)
+            {
+                return content;
+            }
+
+            return content[^maxCharacters..];
+        }
+        catch (Exception ex)
+        {
+            return $"[ERROR] Failed to read CLI log: {ex.Message}";
         }
     }
 
@@ -63,10 +104,75 @@ public class MxLint
         await RunProcess($"--config \"{_configPath}\" export", "Exporting model");
     }
 
+    public async Task InitModelsource()
+    {
+        await RunProcess($"--config \"{_configPath}\" init", "Initializing modelsource");
+    }
+
+    public async Task CommitModelsource()
+    {
+        await RunProcess($"--config \"{_configPath}\" commit", "Committing modelsource");
+    }
+
     public async Task LintModel()
     {
         var diffArg = DiffMode ? " --diff" : string.Empty;
-        await RunProcess($"--config \"{_configPath}\" lint{diffArg}", "Linting model");
+        // CLI exits non-zero when rules fail; results JSON is still written, so allow non-zero.
+        var exitCode = await RunProcessAllowNonZero($"--config \"{_configPath}\" lint{diffArg}", "Linting model");
+        if (exitCode != 0)
+        {
+            LogInfo($"Lint finished with exit code {exitCode} (rule findings are expected to be non-zero).");
+        }
+    }
+
+    /// <summary>
+    /// Returns true when the Mendix project directory has pending git changes.
+    /// Non-git directories, missing git, and git errors are treated as no pending changes.
+    /// </summary>
+    internal async Task<bool> ProjectHasPendingGitChanges()
+    {
+        return await DirectoryHasPendingGitChanges(_model.Root.DirectoryPath, LogInfo);
+    }
+
+    internal static async Task<bool> DirectoryHasPendingGitChanges(string directoryPath, Action<string>? log = null)
+    {
+        try
+        {
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = "git",
+                Arguments = "status --porcelain",
+                WorkingDirectory = directoryPath,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+
+            using var process = new Process { StartInfo = startInfo };
+            process.Start();
+            var stdout = await process.StandardOutput.ReadToEndAsync();
+            var stderr = await process.StandardError.ReadToEndAsync();
+            await process.WaitForExitAsync();
+
+            if (process.ExitCode != 0)
+            {
+                log?.Invoke(
+                    $"Project git status unavailable (exit {process.ExitCode}); treating as no pending changes. {stderr.Trim()}");
+                return false;
+            }
+
+            var hasPending = !string.IsNullOrWhiteSpace(stdout);
+            log?.Invoke(hasPending
+                ? "Project git has pending changes."
+                : "Project git working tree is clean.");
+            return hasPending;
+        }
+        catch (Exception ex)
+        {
+            log?.Invoke($"Project git status check failed; treating as no pending changes. {ex.Message}");
+            return false;
+        }
     }
 
     public async Task AddNoqaRules(IEnumerable<NoqaDocumentRules> entries)
@@ -192,7 +298,44 @@ public class MxLint
         await WriteConfig(config);
     }
 
+    public async Task<(bool Diff, bool AutoRefresh)> GetUiSettings()
+    {
+        EnsureCacheDirectory();
+        await EnsureConfigFile();
+        var config = await ReadConfig();
+        config.Ui ??= new MxLintConfigUi();
+        return (config.Ui.Diff ?? true, config.Ui.AutoRefresh ?? true);
+    }
+
+    public async Task SaveUiSettings(bool? diff = null, bool? autoRefresh = null)
+    {
+        EnsureCacheDirectory();
+        await EnsureConfigFile();
+        var config = await ReadConfig();
+        config.Ui ??= new MxLintConfigUi();
+
+        if (diff.HasValue)
+        {
+            config.Ui.Diff = diff.Value;
+        }
+        if (autoRefresh.HasValue)
+        {
+            config.Ui.AutoRefresh = autoRefresh.Value;
+        }
+
+        await WriteConfig(config);
+    }
+
     private async Task RunProcess(string arguments, string operationName)
+    {
+        var exitCode = await RunProcessAllowNonZero(arguments, operationName);
+        if (exitCode != 0)
+        {
+            throw new InvalidOperationException($"{operationName} failed with exit code {exitCode}");
+        }
+    }
+
+    private async Task<int> RunProcessAllowNonZero(string arguments, string operationName)
     {
         LogInfo($"Starting process for {operationName}. Executable: {_executablePath}; Arguments: {arguments}");
         var startInfo = new ProcessStartInfo
@@ -211,34 +354,23 @@ public class MxLint
         {
             if (e.Data != null)
             {
-                LogInfo(e.Data);
+                LogInfo($"[cli] {e.Data}");
             }
         };
         process.ErrorDataReceived += (_, e) =>
         {
             if (e.Data != null)
             {
-                LogError(e.Data);
+                LogError($"[cli] {e.Data}");
             }
         };
 
-        try
-        {
-            process.Start();
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
-            await process.WaitForExitAsync();
-            if (process.ExitCode != 0)
-            {
-                throw new InvalidOperationException($"{operationName} failed with exit code {process.ExitCode}");
-            }
-
-            LogInfo($"Finished {operationName}");
-        }
-        catch (Exception ex)
-        {
-            LogError($"Error during {operationName}: {ex.Message}", ex);
-        }
+        process.Start();
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
+        await process.WaitForExitAsync();
+        LogInfo($"Finished {operationName} with exit code {process.ExitCode}");
+        return process.ExitCode;
     }
 
     private async Task EnsureCli()
@@ -291,8 +423,8 @@ public class MxLint
         {
             return architecture switch
             {
-                Architecture.Arm64 => $"mxlint-{normalizedVersion}-windows-arm64.exe",
-                _ => $"mxlint-{normalizedVersion}-windows-amd64.exe"
+                Architecture.Arm64 => $"mxlint-{normalizedVersion}-windows-arm64-signed.exe",
+                _ => $"mxlint-{normalizedVersion}-windows-amd64-signed.exe"
             };
         }
 
@@ -559,6 +691,10 @@ public sealed class MxLintConfigCli
 public sealed class MxLintConfigUi
 {
     public List<string> Bookmarks { get; set; } = new();
+    /// <summary>When true, lint uses --diff. Null means default (true).</summary>
+    public bool? Diff { get; set; }
+    /// <summary>When true, extension auto-runs lint on refresh. Null means default (true).</summary>
+    public bool? AutoRefresh { get; set; }
 }
 
 public sealed class MxLintConfigSkipRule

@@ -74,12 +74,28 @@ public class MxLintPaneExtensionWebViewModel : WebViewDockablePaneViewModel
             {
                 _autoRefreshEnabled = ParseBoolean(args.Data);
                 _logService.Info($"Auto refresh set to {_autoRefreshEnabled}");
+                try
+                {
+                    await new MxLint(currentApp, _logService).SaveUiSettings(autoRefresh: _autoRefreshEnabled);
+                }
+                catch (Exception ex)
+                {
+                    _logService.Error($"Failed to persist autoRefresh setting: {ex.Message}");
+                }
             }
 
             if (args.Message == "setDiffMode")
             {
                 _diffModeEnabled = ParseBoolean(args.Data);
                 _logService.Info($"Diff mode set to {_diffModeEnabled}");
+                try
+                {
+                    await new MxLint(currentApp, _logService).SaveUiSettings(diff: _diffModeEnabled);
+                }
+                catch (Exception ex)
+                {
+                    _logService.Error($"Failed to persist diff setting: {ex.Message}");
+                }
             }
 
             if (args.Message == "runLintNow")
@@ -201,9 +217,10 @@ public class MxLintPaneExtensionWebViewModel : WebViewDockablePaneViewModel
         _logService.Info(force ? "Manual lint run requested" : $"Changes detected: {_lastUpdateTime}");
 
         var cmd = new MxLint(currentApp, _logService) { DiffMode = _diffModeEnabled };
-        await cmd.Lint();
+        var lintSucceeded = await cmd.Lint();
 
         _webView?.PostMessage("end");
+        _webView?.PostMessage(lintSucceeded ? "lintSucceeded" : "lintFailed");
         _webView?.PostMessage("refreshData");
         return true;
         }

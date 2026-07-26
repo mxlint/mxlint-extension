@@ -27,7 +27,7 @@ public class CliAssetResolutionTests
     public void ResolveCliAssetName_ReturnsWindowsArm64Asset_ForWindowsArm64()
     {
         var assetName = MxLint.ResolveCliAssetName("v3.14.1", OSPlatform.Windows, Architecture.Arm64);
-        Assert.Equal("mxlint-v3.14.1-windows-arm64.exe", assetName);
+        Assert.Equal("mxlint-v3.14.1-windows-arm64-signed.exe", assetName);
     }
 
     [Theory]
@@ -41,7 +41,7 @@ public class CliAssetResolutionTests
     public void ResolveCliAssetName_ReturnsWindowsAmd64Asset_ForNonArm64Windows(Architecture architecture)
     {
         var assetName = MxLint.ResolveCliAssetName("v3.14.1", OSPlatform.Windows, architecture);
-        Assert.Equal("mxlint-v3.14.1-windows-amd64.exe", assetName);
+        Assert.Equal("mxlint-v3.14.1-windows-amd64-signed.exe", assetName);
     }
 
     [Fact]
@@ -61,8 +61,8 @@ public class CliAssetResolutionTests
     [Fact]
     public void ResolveLocalExecutableName_MatchesAssetName_ForWindowsAsset()
     {
-        var executableName = MxLint.ResolveLocalExecutableName("mxlint-v3.14.1-windows-arm64.exe");
-        Assert.Equal("mxlint-v3.14.1-windows-arm64.exe", executableName);
+        var executableName = MxLint.ResolveLocalExecutableName("mxlint-v3.14.1-windows-arm64-signed.exe");
+        Assert.Equal("mxlint-v3.14.1-windows-arm64-signed.exe", executableName);
     }
 
     [Fact]

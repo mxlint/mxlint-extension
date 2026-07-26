@@ -75,6 +75,10 @@ public class MxLintWebServerExtension : WebServerExtension
         webServer.AddRoute("wwwroot/api/config", ServeConfig);
         webServer.AddRoute("api/bookmarks", ServeBookmarks);
         webServer.AddRoute("wwwroot/api/bookmarks", ServeBookmarks);
+        webServer.AddRoute("api/ui-settings", ServeUiSettings);
+        webServer.AddRoute("wwwroot/api/ui-settings", ServeUiSettings);
+        webServer.AddRoute("api/cli-log", ServeCliLog);
+        webServer.AddRoute("wwwroot/api/cli-log", ServeCliLog);
         webServer.AddRoute("api/runlint", ServeRunLint);
         webServer.AddRoute("wwwroot/api/runlint", ServeRunLint);
         webServer.AddRoute("api/message", ServeMessage);
@@ -102,8 +106,12 @@ public class MxLintWebServerExtension : WebServerExtension
         {
             try
             {
-                var mxlint = new MxLint(currentApp, _logService);
-                await mxlint.Lint();
+                var mxlint = CreateMxLint(currentApp);
+                var lintSucceeded = await mxlint.Lint();
+                if (!lintSucceeded)
+                {
+                    _logService.Error("Initial lint run failed; UI may show outdated results.");
+                }
             }
             catch (Exception ex)
             {
@@ -349,14 +357,19 @@ public class MxLintWebServerExtension : WebServerExtension
         try
         {
             var mxlint = CreateMxLint(CurrentApp);
-            await mxlint.Lint();
-            SendJson(response, new { success = true });
+            var lintSucceeded = await mxlint.Lint();
+            SendJson(response, new
+            {
+                success = lintSucceeded,
+                lintSucceeded,
+                error = lintSucceeded ? null : "Lint workflow failed. Displayed results may be outdated."
+            }, lintSucceeded ? 200 : 500);
         }
         catch (Exception ex)
         {
             _logService.Error($"ServeRunLint failed: {ex}");
             WriteDebugToMxLintLog(CurrentApp, $"ServeRunLint failed: {ex.Message}");
-            SendJson(response, new { success = false, error = ex.Message }, 500);
+            SendJson(response, new { success = false, lintSucceeded = false, error = ex.Message }, 500);
         }
         finally
         {
@@ -412,6 +425,108 @@ public class MxLintWebServerExtension : WebServerExtension
         response.SendNoBodyAndClose(405);
     }
 
+    private async Task ServeUiSettings(HttpListenerRequest request, HttpListenerResponse response, CancellationToken ct)
+    {
+        WriteDebugToMxLintLog(CurrentApp, $"ServeUiSettings hit: {request.HttpMethod} {request.Url}");
+
+        if (CurrentApp == null)
+        {
+            response.SendNoBodyAndClose(404);
+            return;
+        }
+
+        var mxlint = new MxLint(CurrentApp, _logService);
+
+        if (string.Equals(request.HttpMethod, "GET", StringComparison.OrdinalIgnoreCase))
+        {
+            var (diff, autoRefresh) = await mxlint.GetUiSettings();
+            _diffModeEnabled = diff;
+            _autoRefreshEnabled = autoRefresh;
+            SendJson(response, new
+            {
+                success = true,
+                diffModeEnabled = diff,
+                autoRefreshEnabled = autoRefresh
+            });
+            return;
+        }
+
+        if (string.Equals(request.HttpMethod, "POST", StringComparison.OrdinalIgnoreCase))
+        {
+            try
+            {
+                using var reader = new StreamReader(request.InputStream, request.ContentEncoding ?? Encoding.UTF8);
+                var body = await reader.ReadToEndAsync(ct);
+                var payload = JsonSerializer.Deserialize<UiSettingsUpdateRequest>(body, JsonOptions);
+                if (payload == null)
+                {
+                    SendJson(response, new { success = false, error = "Invalid ui-settings payload." }, 400);
+                    return;
+                }
+
+                if (payload.DiffModeEnabled.HasValue)
+                {
+                    _diffModeEnabled = payload.DiffModeEnabled.Value;
+                }
+                if (payload.AutoRefreshEnabled.HasValue)
+                {
+                    _autoRefreshEnabled = payload.AutoRefreshEnabled.Value;
+                }
+
+                await mxlint.SaveUiSettings(
+                    diff: payload.DiffModeEnabled,
+                    autoRefresh: payload.AutoRefreshEnabled);
+
+                SendJson(response, new
+                {
+                    success = true,
+                    diffModeEnabled = _diffModeEnabled,
+                    autoRefreshEnabled = _autoRefreshEnabled
+                });
+            }
+            catch (Exception ex)
+            {
+                _logService.Error($"Failed to update ui settings: {ex.Message}");
+                SendJson(response, new { success = false, error = ex.Message }, 500);
+            }
+
+            return;
+        }
+
+        response.SendNoBodyAndClose(405);
+    }
+
+    private Task ServeCliLog(HttpListenerRequest request, HttpListenerResponse response, CancellationToken ct)
+    {
+        WriteDebugToMxLintLog(CurrentApp, $"ServeCliLog hit: {request.HttpMethod} {request.Url}");
+
+        if (CurrentApp == null)
+        {
+            response.SendNoBodyAndClose(404);
+            return Task.CompletedTask;
+        }
+
+        if (!string.Equals(request.HttpMethod, "GET", StringComparison.OrdinalIgnoreCase))
+        {
+            response.SendNoBodyAndClose(405);
+            return Task.CompletedTask;
+        }
+
+        try
+        {
+            var mxlint = new MxLint(CurrentApp, _logService);
+            var content = mxlint.ReadCliLog();
+            SendJson(response, new { success = true, content });
+        }
+        catch (Exception ex)
+        {
+            _logService.Error($"Failed to read CLI log: {ex.Message}");
+            SendJson(response, new { success = false, error = ex.Message }, 500);
+        }
+
+        return Task.CompletedTask;
+    }
+
     private async Task ServeMessage(HttpListenerRequest request, HttpListenerResponse response, CancellationToken ct)
     {
         _logService.Info($"ServeMessage hit: {request.HttpMethod} {request.Url}");
@@ -462,12 +577,28 @@ public class MxLintWebServerExtension : WebServerExtension
             case "setAutoRefresh":
                 _autoRefreshEnabled = ParseBoolean(data);
                 _logService.Info($"Auto refresh set to {_autoRefreshEnabled} via HTTP message");
+                try
+                {
+                    await new MxLint(CurrentApp, _logService).SaveUiSettings(autoRefresh: _autoRefreshEnabled);
+                }
+                catch (Exception ex)
+                {
+                    _logService.Error($"Failed to persist autoRefresh setting: {ex.Message}");
+                }
                 SendJson(response, new { success = true, autoRefreshEnabled = _autoRefreshEnabled });
                 return;
 
             case "setDiffMode":
                 _diffModeEnabled = ParseBoolean(data);
                 _logService.Info($"Diff mode set to {_diffModeEnabled} via HTTP message");
+                try
+                {
+                    await new MxLint(CurrentApp, _logService).SaveUiSettings(diff: _diffModeEnabled);
+                }
+                catch (Exception ex)
+                {
+                    _logService.Error($"Failed to persist diff setting: {ex.Message}");
+                }
                 SendJson(response, new { success = true, diffModeEnabled = _diffModeEnabled });
                 return;
 
@@ -479,15 +610,30 @@ public class MxLintWebServerExtension : WebServerExtension
                     return;
                 }
 
-                var ran = await RunLintIfNeeded(CurrentApp, force: false, ct);
-                SendJson(response, new { success = true, ran });
+                var (ran, lintSucceeded) = await RunLintIfNeeded(CurrentApp, force: false, ct);
+                SendJson(response, new
+                {
+                    success = true,
+                    ran,
+                    lintSucceeded,
+                    error = ran && !lintSucceeded
+                        ? "Lint workflow failed. Displayed results may be outdated."
+                        : null
+                });
                 return;
             }
 
             case "runLintNow":
             {
-                await RunLintIfNeeded(CurrentApp, force: true, ct);
-                SendJson(response, new { success = true, ran = true });
+                var (_, lintSucceeded) = await RunLintIfNeeded(CurrentApp, force: true, ct);
+                // Keep HTTP 200 so the message transport can deliver lintSucceeded to the UI.
+                SendJson(response, new
+                {
+                    success = true,
+                    ran = true,
+                    lintSucceeded,
+                    error = lintSucceeded ? null : "Lint workflow failed. Displayed results may be outdated."
+                });
                 return;
             }
 
@@ -508,7 +654,7 @@ public class MxLintWebServerExtension : WebServerExtension
         }
     }
 
-    private async Task<bool> RunLintIfNeeded(IModel currentApp, bool force, CancellationToken ct)
+    private async Task<(bool Ran, bool LintSucceeded)> RunLintIfNeeded(IModel currentApp, bool force, CancellationToken ct)
     {
         await _refreshLintLock.WaitAsync(ct);
         try
@@ -516,20 +662,20 @@ public class MxLintWebServerExtension : WebServerExtension
             var mprFile = GetMprFile(currentApp.Root.DirectoryPath);
             if (mprFile == null)
             {
-                return false;
+                return (false, false);
             }
 
             var lastWrite = File.GetLastWriteTime(mprFile);
             if (!force && lastWrite <= _lastRefreshUpdateTime)
             {
                 _logService.Debug("HTTP refreshData: no changes detected.");
-                return false;
+                return (false, true);
             }
 
             _lastRefreshUpdateTime = lastWrite;
             var mxlint = CreateMxLint(currentApp);
-            await mxlint.Lint();
-            return true;
+            var lintSucceeded = await mxlint.Lint();
+            return (true, lintSucceeded);
         }
         finally
         {
@@ -681,6 +827,12 @@ public sealed class ConfigUpdateRequest
 public sealed class BookmarksUpdateRequest
 {
     public List<string> Bookmarks { get; set; } = new();
+}
+
+public sealed class UiSettingsUpdateRequest
+{
+    public bool? DiffModeEnabled { get; set; }
+    public bool? AutoRefreshEnabled { get; set; }
 }
 
 public sealed class FrontendMessageRequest
