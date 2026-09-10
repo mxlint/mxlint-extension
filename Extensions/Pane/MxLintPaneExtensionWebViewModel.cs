@@ -38,7 +38,6 @@ public class MxLintPaneExtensionWebViewModel : WebViewDockablePaneViewModel
     {
         _webView = webView;
         webView.Address = new Uri(_baseUri, "index.html");
-        _logService.Info($"InitWebView base URI: {_baseUri}");
         _logService.Info($"InitWebView address: {webView.Address}");
         webView.MessageReceived += HandleWebViewMessage;
     }
@@ -47,13 +46,12 @@ public class MxLintPaneExtensionWebViewModel : WebViewDockablePaneViewModel
     {
         try
         {
-            _logService.Info($"WebView message received: {args.Message}");
+            _logService.Debug($"WebView message received: {args.Message}");
 
             var currentApp = _getCurrentApp();
-            WriteDebugToMxLintLog(currentApp, $"WebView message received: {args.Message}");
             if (currentApp == null)
             {
-                _logService.Info($"Ignoring message '{args.Message}' because CurrentApp is null.");
+                _logService.Debug($"Ignoring message '{args.Message}' because CurrentApp is null.");
                 return;
             }
 
@@ -147,7 +145,7 @@ public class MxLintPaneExtensionWebViewModel : WebViewDockablePaneViewModel
 
     private IAbstractUnit? GetUnit(IModel currentApp, JsonObject data)
     {
-        _logService.Info($"Looking up document: {data}");
+        _logService.Debug($"Looking up document: {data}");
 
         var documentName = data["document"]?.ToString();
         if (string.IsNullOrWhiteSpace(documentName))

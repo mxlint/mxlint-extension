@@ -60,7 +60,7 @@ public class MxLintWebServerExtension : WebServerExtension
             // - wwwroot/route    (recommended macOS-friendly base URI)
             webServer.AddRoute(route, (request, response, ct) => ServeFile(file, response, ct));
             webServer.AddRoute(prefixedRoute, (request, response, ct) => ServeFile(file, response, ct));
-            _logService.Info($"Registered web routes '{route}' and '{prefixedRoute}' -> '{file}'");
+            _logService.Debug($"Registered web routes '{route}' and '{prefixedRoute}' -> '{file}'");
         }
 
         webServer.AddRoute("api", ServeApi);
@@ -85,7 +85,7 @@ public class MxLintWebServerExtension : WebServerExtension
         webServer.AddRoute("wwwroot/api/message", ServeMessage);
         webServer.AddRoute("api/diag", ServeDiag);
         webServer.AddRoute("wwwroot/api/diag", ServeDiag);
-        _logService.Info("Registered API routes: api/* and wwwroot/api/*");
+        _logService.Info($"Registered {files.Length} static file routes and API routes: api/* and wwwroot/api/*");
 
         // Auto-run an initial lint when the app finishes loading so results are ready
         // even if the MxLint pane has not been opened yet (e.g. in headless CI sessions).
@@ -140,8 +140,7 @@ public class MxLintWebServerExtension : WebServerExtension
 
     private async Task ServeApi(HttpListenerRequest request, HttpListenerResponse response, CancellationToken ct)
     {
-        _logService.Info($"ServeApi hit: {request.Url}");
-        WriteDebugToMxLintLog(CurrentApp, $"ServeApi hit: {request.Url}");
+        _logService.Debug($"ServeApi hit: {request.Url}");
 
         if (CurrentApp == null)
         {
@@ -158,7 +157,7 @@ public class MxLintWebServerExtension : WebServerExtension
 
     private Task ServeVersion(HttpListenerRequest request, HttpListenerResponse response, CancellationToken ct)
     {
-        _logService.Info($"ServeVersion hit: {request.Url}");
+        _logService.Debug($"ServeVersion hit: {request.Url}");
 
         var versionObject = new JsonObject
         {
@@ -195,8 +194,7 @@ public class MxLintWebServerExtension : WebServerExtension
 
     private Task ServeTheme(HttpListenerRequest request, HttpListenerResponse response, CancellationToken ct)
     {
-        _logService.Info($"ServeTheme hit: {request.Url}");
-        WriteDebugToMxLintLog(CurrentApp, $"ServeTheme hit: {request.Url}");
+        _logService.Debug($"ServeTheme hit: {request.Url}");
 
         if (CurrentApp == null)
         {
@@ -224,8 +222,7 @@ public class MxLintWebServerExtension : WebServerExtension
 
     private async Task ServeNoqa(HttpListenerRequest request, HttpListenerResponse response, CancellationToken ct)
     {
-        _logService.Info($"ServeNoqa hit: {request.Url}");
-        WriteDebugToMxLintLog(CurrentApp, $"ServeNoqa hit: {request.Url}");
+        _logService.Debug($"ServeNoqa hit: {request.Url}");
 
         if (CurrentApp == null)
         {
@@ -243,7 +240,7 @@ public class MxLintWebServerExtension : WebServerExtension
         {
             using var reader = new StreamReader(request.InputStream, request.ContentEncoding ?? Encoding.UTF8);
             var body = await reader.ReadToEndAsync(ct);
-            _logService.Info($"NOQA request received. Body length={body.Length}");
+            _logService.Debug($"NOQA request received. Body length={body.Length}");
             var payload = JsonSerializer.Deserialize<NoqaRequest>(body, JsonOptions);
 
             if (payload?.Entries == null || payload.Entries.Count == 0)
@@ -278,8 +275,7 @@ public class MxLintWebServerExtension : WebServerExtension
 
     private async Task ServeConfig(HttpListenerRequest request, HttpListenerResponse response, CancellationToken ct)
     {
-        _logService.Info($"ServeConfig hit: {request.HttpMethod} {request.Url}");
-        WriteDebugToMxLintLog(CurrentApp, $"ServeConfig hit: {request.HttpMethod} {request.Url}");
+        _logService.Debug($"ServeConfig hit: {request.HttpMethod} {request.Url}");
 
         if (CurrentApp == null)
         {
@@ -338,8 +334,7 @@ public class MxLintWebServerExtension : WebServerExtension
 
     private async Task ServeRunLint(HttpListenerRequest request, HttpListenerResponse response, CancellationToken ct)
     {
-        _logService.Info($"ServeRunLint hit: {request.HttpMethod} {request.Url}");
-        WriteDebugToMxLintLog(CurrentApp, $"ServeRunLint hit: {request.HttpMethod} {request.Url}");
+        _logService.Debug($"ServeRunLint hit: {request.HttpMethod} {request.Url}");
 
         if (CurrentApp == null)
         {
@@ -379,8 +374,7 @@ public class MxLintWebServerExtension : WebServerExtension
 
     private async Task ServeBookmarks(HttpListenerRequest request, HttpListenerResponse response, CancellationToken ct)
     {
-        _logService.Info($"ServeBookmarks hit: {request.HttpMethod} {request.Url}");
-        WriteDebugToMxLintLog(CurrentApp, $"ServeBookmarks hit: {request.HttpMethod} {request.Url}");
+        _logService.Debug($"ServeBookmarks hit: {request.HttpMethod} {request.Url}");
 
         if (CurrentApp == null)
         {
@@ -427,7 +421,7 @@ public class MxLintWebServerExtension : WebServerExtension
 
     private async Task ServeUiSettings(HttpListenerRequest request, HttpListenerResponse response, CancellationToken ct)
     {
-        WriteDebugToMxLintLog(CurrentApp, $"ServeUiSettings hit: {request.HttpMethod} {request.Url}");
+        _logService.Debug($"ServeUiSettings hit: {request.HttpMethod} {request.Url}");
 
         if (CurrentApp == null)
         {
@@ -498,7 +492,7 @@ public class MxLintWebServerExtension : WebServerExtension
 
     private Task ServeCliLog(HttpListenerRequest request, HttpListenerResponse response, CancellationToken ct)
     {
-        WriteDebugToMxLintLog(CurrentApp, $"ServeCliLog hit: {request.HttpMethod} {request.Url}");
+        _logService.Debug($"ServeCliLog hit: {request.HttpMethod} {request.Url}");
 
         if (CurrentApp == null)
         {
@@ -529,8 +523,7 @@ public class MxLintWebServerExtension : WebServerExtension
 
     private async Task ServeMessage(HttpListenerRequest request, HttpListenerResponse response, CancellationToken ct)
     {
-        _logService.Info($"ServeMessage hit: {request.HttpMethod} {request.Url}");
-        WriteDebugToMxLintLog(CurrentApp, $"ServeMessage hit: {request.HttpMethod} {request.Url}");
+        _logService.Debug($"ServeMessage hit: {request.HttpMethod} {request.Url}");
 
         if (CurrentApp == null)
         {
@@ -566,7 +559,7 @@ public class MxLintWebServerExtension : WebServerExtension
 
         var message = payload.Message;
         var data = payload.Data ?? new JsonObject();
-        WriteDebugToMxLintLog(CurrentApp, $"ServeMessage dispatch: {message}");
+        _logService.Debug($"ServeMessage dispatch: {message}");
 
         switch (message)
         {
@@ -785,8 +778,7 @@ public class MxLintWebServerExtension : WebServerExtension
         var detail = request.QueryString["detail"] ?? string.Empty;
         var source = request.QueryString["source"] ?? "web";
 
-        _logService.Info($"Web diag [{source}] event='{evt}' detail='{detail}'");
-        WriteDebugToMxLintLog(CurrentApp, $"Web diag [{source}] event='{evt}' detail='{detail}'");
+        _logService.Debug($"Web diag [{source}] event='{evt}' detail='{detail}'");
         SendJson(response, new { success = true });
         return Task.CompletedTask;
     }

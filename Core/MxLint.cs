@@ -47,9 +47,9 @@ public class MxLint
         LogInfo("======== Lint run started ========");
         try
         {
-            LogInfo($"Cache directory: {_cachePath}");
-            LogInfo($"Config path: {_configPath}");
-            LogInfo($"Lint results path: {_lintResultsPath}");
+            LogDebug($"Cache directory: {_cachePath}");
+            LogDebug($"Config path: {_configPath}");
+            LogDebug($"Lint results path: {_lintResultsPath}");
             await EnsureConfigFile();
             await EnsureCli();
             await ExportModel();
@@ -63,7 +63,6 @@ public class MxLint
                 LogInfo("Project git has pending changes; skipping modelsource commit.");
             }
             await LintModel();
-            LogInfo("Lint workflow completed.");
             LogInfo("======== Lint run finished ========");
             return true;
         }
@@ -131,7 +130,7 @@ public class MxLint
     /// </summary>
     internal async Task<bool> ProjectHasPendingGitChanges()
     {
-        return await DirectoryHasPendingGitChanges(_model.Root.DirectoryPath, LogInfo);
+        return await DirectoryHasPendingGitChanges(_model.Root.DirectoryPath, LogDebug);
     }
 
     internal static async Task<bool> DirectoryHasPendingGitChanges(string directoryPath, Action<string>? log = null)
@@ -337,7 +336,8 @@ public class MxLint
 
     private async Task<int> RunProcessAllowNonZero(string arguments, string operationName)
     {
-        LogInfo($"Starting process for {operationName}. Executable: {_executablePath}; Arguments: {arguments}");
+        LogInfo($"{operationName}...");
+        LogDebug($"Executable: {_executablePath}; Arguments: {arguments}");
         var startInfo = new ProcessStartInfo
         {
             FileName = _executablePath,
@@ -354,14 +354,23 @@ public class MxLint
         {
             if (e.Data != null)
             {
-                LogInfo($"[cli] {e.Data}");
+                LogDebug($"[cli] {e.Data}");
             }
         };
         process.ErrorDataReceived += (_, e) =>
         {
             if (e.Data != null)
             {
-                LogError($"[cli] {e.Data}");
+                // The CLI (logrus) writes all logs to stderr, including routine progress.
+                // Only surface genuine warnings/errors at error level; the rest is debug noise.
+                if (IsCliErrorLine(e.Data))
+                {
+                    LogError($"[cli] {e.Data}");
+                }
+                else
+                {
+                    LogDebug($"[cli] {e.Data}");
+                }
             }
         };
 
@@ -369,7 +378,7 @@ public class MxLint
         process.BeginOutputReadLine();
         process.BeginErrorReadLine();
         await process.WaitForExitAsync();
-        LogInfo($"Finished {operationName} with exit code {process.ExitCode}");
+        LogDebug($"Finished {operationName} with exit code {process.ExitCode}");
         return process.ExitCode;
     }
 
@@ -379,11 +388,11 @@ public class MxLint
         var cliVersion = await ResolveConfiguredCliVersion();
         var cliAssetName = ResolveCliAssetName(cliVersion, currentOsPlatform, RuntimeInformation.OSArchitecture);
         _executablePath = Path.Combine(_cachePath, ResolveLocalExecutableName(cliAssetName));
-        LogInfo($"CLI resolution: platform={currentOsPlatform}, arch={RuntimeInformation.OSArchitecture}, configuredVersion={cliVersion}, asset={cliAssetName}, targetPath={_executablePath}");
+        LogDebug($"CLI resolution: platform={currentOsPlatform}, arch={RuntimeInformation.OSArchitecture}, configuredVersion={cliVersion}, asset={cliAssetName}, targetPath={_executablePath}");
 
         if (File.Exists(_executablePath))
         {
-            LogInfo($"CLI already exists for version {cliVersion} at {_executablePath}");
+            LogDebug($"CLI already exists for version {cliVersion} at {_executablePath}");
             return;
         }
 
@@ -392,7 +401,7 @@ public class MxLint
         var downloadUrl = $"{cliBaseUrl}{cliAssetName}";
         LogInfo($"CLI not found. Downloading CLI from {downloadUrl}");
         var response = await client.GetAsync(downloadUrl);
-        LogInfo($"CLI download response status: {(int)response.StatusCode} {response.ReasonPhrase}");
+        LogDebug($"CLI download response status: {(int)response.StatusCode} {response.ReasonPhrase}");
         response.EnsureSuccessStatusCode();
         await using var fs = new FileStream(_executablePath, FileMode.CreateNew);
         await response.Content.CopyToAsync(fs);
@@ -405,7 +414,7 @@ public class MxLint
     {
         var config = await ReadConfig();
         var cliVersion = ResolveCliVersion(config.Cli?.Version);
-        LogInfo($"Resolved CLI version from config: raw='{config.Cli?.Version ?? "<null>"}', effective='{cliVersion}'");
+        LogDebug($"Resolved CLI version from config: raw='{config.Cli?.Version ?? "<null>"}', effective='{cliVersion}'");
         return cliVersion;
     }
 
@@ -468,7 +477,7 @@ public class MxLint
     {
         if (OperatingSystem.IsWindows() || osPlatform == OSPlatform.Windows)
         {
-            LogInfo("Skipping executable permission update on Windows.");
+            LogDebug("Skipping executable permission update on Windows.");
             return;
         }
 
@@ -479,7 +488,7 @@ public class MxLint
                 UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
                 UnixFileMode.GroupRead | UnixFileMode.GroupExecute |
                 UnixFileMode.OtherRead | UnixFileMode.OtherExecute);
-            LogInfo($"Executable permissions updated for {_executablePath}");
+            LogDebug($"Executable permissions updated for {_executablePath}");
         }
         catch (Exception ex)
         {
@@ -499,7 +508,7 @@ public class MxLint
     {
         if (File.Exists(_configPath))
         {
-            LogInfo("MxLint config already exists.");
+            LogDebug("MxLint config already exists.");
             return;
         }
 
@@ -523,7 +532,7 @@ public class MxLint
             .Build();
 
         var config = deserializer.Deserialize<MxLintConfig>(yaml);
-        LogInfo($"Read config from {_configPath}");
+        LogDebug($"Read config from {_configPath}");
         return config ?? CreateDefaultConfig();
     }
 
@@ -535,7 +544,7 @@ public class MxLint
 
         var yaml = serializer.Serialize(config);
         await File.WriteAllTextAsync(_configPath, yaml, Encoding.UTF8);
-        LogInfo($"Wrote config to {_configPath}");
+        LogDebug($"Wrote config to {_configPath}");
     }
 
     private MxLintConfig CreateDefaultConfig()
@@ -592,7 +601,17 @@ public class MxLint
         return value.Trim();
     }
 
+    internal static bool IsCliErrorLine(string line)
+    {
+        return line.Contains("level=error", StringComparison.OrdinalIgnoreCase)
+            || line.Contains("level=fatal", StringComparison.OrdinalIgnoreCase)
+            || line.Contains("level=warning", StringComparison.OrdinalIgnoreCase)
+            || !line.Contains("level=", StringComparison.OrdinalIgnoreCase);
+    }
+
     private void LogInfo(string message) => Log("INFO", message);
+
+    private void LogDebug(string message) => Log("DEBUG", message);
 
     private void LogError(string message, Exception? exception = null)
     {
@@ -618,13 +637,18 @@ public class MxLint
             // File logging must never block extension execution.
         }
 
-        if (level == "ERROR")
+        switch (level)
         {
-            _logService.Error(message);
-            return;
+            case "ERROR":
+                _logService.Error(message);
+                break;
+            case "DEBUG":
+                _logService.Debug(message);
+                break;
+            default:
+                _logService.Info(message);
+                break;
         }
-
-        _logService.Info(message);
     }
 }
 
