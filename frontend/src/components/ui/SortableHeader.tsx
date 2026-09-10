@@ -9,6 +9,10 @@ interface SortableHeaderProps {
   sortColumn: SortColumn;
   sortDirection: SortDirection;
   onSort: (column: SortColumn) => void;
+  /** Start a drag-resize of this column (renders a resize handle when set). */
+  onResizeStart?: (column: SortColumn, event: React.PointerEvent) => void;
+  /** Reset all column widths to their defaults (double-click on the handle). */
+  onResizeReset?: () => void;
 }
 
 export const SortableHeader: React.FC<SortableHeaderProps> = ({
@@ -18,6 +22,8 @@ export const SortableHeader: React.FC<SortableHeaderProps> = ({
   sortColumn,
   sortDirection,
   onSort,
+  onResizeStart,
+  onResizeReset,
 }) => (
   <th
     className={`${className || ''} sortable-header`}
@@ -32,5 +38,20 @@ export const SortableHeader: React.FC<SortableHeaderProps> = ({
         </span>
       )}
     </span>
+    {onResizeStart && (
+      <span
+        className="column-resize-handle"
+        role="separator"
+        aria-orientation="vertical"
+        aria-label={`Resize ${title} column`}
+        title="Drag to resize. Double-click to reset all columns."
+        onClick={e => e.stopPropagation()}
+        onDoubleClick={e => {
+          e.stopPropagation();
+          onResizeReset?.();
+        }}
+        onPointerDown={e => onResizeStart(column, e)}
+      />
+    )}
   </th>
 );
