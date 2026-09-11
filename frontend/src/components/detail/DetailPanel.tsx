@@ -7,12 +7,18 @@ interface DetailPanelProps {
   testcase: ProcessedTestCaseWithId | null;
   onClose: () => void;
   onOpenDocument: (docInfo: DocumentInfo) => void;
+  /** Custom panel width in pixels (falls back to the CSS default). */
+  width?: number;
 }
 
-export const DetailPanel: React.FC<DetailPanelProps> = React.memo(({ testcase, onClose, onOpenDocument }) => {
+export const DetailPanel: React.FC<DetailPanelProps> = React.memo(({ testcase, onClose, onOpenDocument, width }) => {
+  const panelStyle = width !== undefined
+    ? { width, minWidth: width, maxWidth: width }
+    : undefined;
+
   if (!testcase) {
     return (
-      <div className="detail-panel empty">
+      <div className="detail-panel empty" style={panelStyle}>
         <div className="detail-panel-empty">
           <span>Select a row to view details</span>
         </div>
@@ -33,7 +39,7 @@ export const DetailPanel: React.FC<DetailPanelProps> = React.memo(({ testcase, o
   };
 
   return (
-    <div className="detail-panel">
+    <div className="detail-panel" style={panelStyle}>
       <div className="detail-panel-header">
         <h3>Rule Details</h3>
         <Button

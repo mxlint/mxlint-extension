@@ -13,7 +13,7 @@ html, body {
   background-color: var(--ui-bg-primary);
   color: var(--ui-text-primary);
   border: 1px solid var(--ui-border-primary);
-  min-width: 900px;
+  min-width: 0;
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -777,6 +777,44 @@ html, body {
   color: var(--ui-color-info);
 }
 
+/* ========== Column Resize Handles ========== */
+/* Sticky headers are positioned elements, so the handle anchors to the th. */
+.column-resize-handle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 9px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 3;
+  touch-action: none;
+  user-select: none;
+}
+
+.column-resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 15%;
+  bottom: 15%;
+  right: 0;
+  width: 3px;
+  border-radius: 1px;
+  background: transparent;
+  transition: background-color 0.1s ease;
+}
+
+.column-resize-handle:hover::after,
+.column-resize-handle:active::after {
+  background: var(--ui-border-focus);
+}
+
+/* Keep the col-resize cursor and disable text selection during a drag. */
+body.is-resizing-columns,
+body.is-resizing-columns * {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+
 /* ========== Column widths ========== */
 .col-checkbox {
   width: 36px;
@@ -967,6 +1005,23 @@ html, body {
 /* Collapse to the essential columns (severity, rule, status) and swap the
    text badges for compact icons with tooltips. */
 @media (max-width: 768px) {
+  /* Neutralize user column resizing on narrow screens: the compact layout
+     manages widths itself. `!important` is required to beat the inline
+     styles applied while resizing on wide layouts. */
+  .lint-table {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .lint-table col {
+    width: auto !important;
+  }
+
+  .column-resize-handle,
+  .panel-resizer {
+    display: none;
+  }
+
   /* Keep the checkbox (multi-select) and bookmark action columns; only the
      data columns collapse into the detail panel. */
   .lint-table .col-document,
@@ -1006,8 +1061,10 @@ html, body {
   .main-content .detail-panel {
     position: absolute;
     inset: 0;
-    width: 100%;
-    min-width: 0;
+    /* `!important` beats the inline width set by the panel resizer. */
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
     z-index: 10;
     border-left: none;
   }
@@ -1038,15 +1095,54 @@ html, body {
   min-width: 0;
 }
 
+/* ========== Panel Splitter ========== */
+.panel-resizer {
+  flex: 0 0 6px;
+  width: 6px;
+  cursor: col-resize;
+  position: relative;
+  z-index: 5;
+  touch-action: none;
+  user-select: none;
+  background: transparent;
+}
+
+.panel-resizer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 2px;
+  width: 2px;
+  background: var(--ui-border-primary);
+  transition: background-color 0.1s ease;
+}
+
+.panel-resizer:hover::after,
+.panel-resizer.resizing::after,
+.panel-resizer:focus-visible::after {
+  background: var(--ui-border-focus);
+}
+
+.panel-resizer:focus-visible {
+  outline: none;
+}
+
 /* ========== Detail Panel ========== */
 .detail-panel {
   width: 320px;
-  min-width: 320px;
+  min-width: 240px;
   background-color: var(--ui-bg-secondary);
   border-left: 1px solid var(--ui-border-primary);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* When the splitter precedes the panel, it already draws the divider. */
+.panel-resizer + .detail-panel {
+  border-left: none;
 }
 
 .detail-panel.empty {
@@ -1550,15 +1646,93 @@ html, body {
 }
 
 @media (max-width: 1000px) {
-  .lint-pane {
-    min-width: 100%;
-  }
-
-  .toolbar-search {
+  /* Give the search box its own full-width row so the buttons stay usable. */
+  .toolbar-group--search {
     order: 10;
     flex-basis: 100%;
+    min-width: 0;
     max-width: none;
-    margin-top: 4px;
+  }
+}
+
+@media (max-width: 768px) {
+  .lint-pane-toolbar {
+    padding: 4px;
+    gap: 4px;
+  }
+
+  .toolbar-group {
+    flex-wrap: wrap;
+  }
+
+  .toolbar-group--secondary {
+    margin-left: 0;
+  }
+
+  .summary-section {
+    padding: 8px 12px;
+  }
+
+  .summary-stats {
+    gap: 10px 16px;
+    margin-bottom: 8px;
+  }
+
+  .stat-item.showing {
+    margin-left: 0;
+    padding-left: 0;
+    border-left: none;
+  }
+
+  /* Stack filter groups vertically so options stay readable and tappable. */
+  .filter-panel {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 10px 12px;
+    max-height: 45vh;
+    overflow-y: auto;
+  }
+
+  .filter-options {
+    flex-wrap: wrap;
+    gap: 8px 12px;
+  }
+
+  .multi-select {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .clear-filters-btn {
+    margin-left: 0;
+    justify-content: center;
+  }
+
+  .group-header {
+    flex-wrap: wrap;
+    gap: 6px 12px;
+  }
+
+  .group-stats {
+    flex-basis: 100%;
+    margin-left: 0;
+  }
+
+  .grouped-table {
+    margin-left: 8px;
+    width: calc(100% - 8px);
+  }
+}
+
+@media (max-width: 560px) {
+  /* Drop percentage annotations to keep the stats on one or two lines. */
+  .stat-percent {
+    display: none;
+  }
+
+  .toolbar-version {
+    display: none;
   }
 }
 

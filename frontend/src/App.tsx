@@ -21,7 +21,7 @@ import { ROW_HEIGHT, FILTER_PRESETS } from '@/constants';
 import type { FilterPreset } from '@/constants';
 
 // Hooks
-import { useVirtualList } from '@/hooks';
+import { useVirtualList, useResizableColumns, useResizablePanel, RESIZABLE_COLUMNS } from '@/hooks';
 
 // Utilities
 import {
@@ -161,6 +161,23 @@ const App: React.FC = () => {
   const dataHashRef = useRef(0);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const tableContainerRef = useRef<HTMLDivElement>(null);
+  const tableRef = useRef<HTMLTableElement>(null);
+  const mainContentRef = useRef<HTMLDivElement>(null);
+
+  // User-resizable table columns and detail panel
+  const {
+    columnWidths,
+    tableStyle,
+    startResize: startColumnResize,
+    resetColumnWidths,
+  } = useResizableColumns(tableRef);
+  const {
+    width: detailPanelWidth,
+    isResizing: isPanelResizing,
+    startResize: startPanelResize,
+    resetWidth: resetPanelWidth,
+    handleKeyDown: handlePanelResizeKeyDown,
+  } = useResizablePanel(mainContentRef);
 
   // Build rule map once
   const ruleMap = useMemo(() => {
@@ -1361,7 +1378,7 @@ const App: React.FC = () => {
       )}
 
       {/* Main content area with table and detail panel */}
-      <div className="main-content">
+      <div className="main-content" ref={mainContentRef}>
         {/* Table */}
         <div className="table-container" ref={tableContainerRef}>
           {stats.total === 0 && !isLoading ? (
@@ -1386,7 +1403,18 @@ const App: React.FC = () => {
               onSelectRow={handleSelectRowById}
             />
           ) : (
-            <table className="lint-table">
+            <table className="lint-table" ref={tableRef} style={tableStyle}>
+              <colgroup>
+                <col className="col-checkbox" />
+                <col className="col-bookmark" />
+                {RESIZABLE_COLUMNS.map(key => (
+                  <col
+                    key={key}
+                    className={`col-${key}`}
+                    style={columnWidths[key] !== undefined ? { width: columnWidths[key] } : undefined}
+                  />
+                ))}
+              </colgroup>
               <thead>
                 <tr>
                   <th className="col-checkbox">
@@ -1398,13 +1426,13 @@ const App: React.FC = () => {
                     />
                   </th>
                   <th className="col-bookmark"></th>
-                  <SortableHeader column="severity" title="Severity" className="col-severity" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
-                  <SortableHeader column="document" title="Document" className="col-document" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
-                  <SortableHeader column="module" title="Module" className="col-module" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
-                  <SortableHeader column="doctype" title="Type" className="col-doctype" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
-                  <SortableHeader column="rule" title="Rule" className="col-rule" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
-                  <SortableHeader column="category" title="Category" className="col-category" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
-                  <SortableHeader column="status" title="Status" className="col-status" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
+                  <SortableHeader column="severity" title="Severity" className="col-severity" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} onResizeStart={startColumnResize} onResizeReset={resetColumnWidths} />
+                  <SortableHeader column="document" title="Document" className="col-document" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} onResizeStart={startColumnResize} onResizeReset={resetColumnWidths} />
+                  <SortableHeader column="module" title="Module" className="col-module" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} onResizeStart={startColumnResize} onResizeReset={resetColumnWidths} />
+                  <SortableHeader column="doctype" title="Type" className="col-doctype" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} onResizeStart={startColumnResize} onResizeReset={resetColumnWidths} />
+                  <SortableHeader column="rule" title="Rule" className="col-rule" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} onResizeStart={startColumnResize} onResizeReset={resetColumnWidths} />
+                  <SortableHeader column="category" title="Category" className="col-category" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} onResizeStart={startColumnResize} onResizeReset={resetColumnWidths} />
+                  <SortableHeader column="status" title="Status" className="col-status" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} onResizeStart={startColumnResize} onResizeReset={resetColumnWidths} />
                 </tr>
               </thead>
               <tbody style={{ position: 'relative' }}>
@@ -1432,11 +1460,25 @@ const App: React.FC = () => {
         {/* Detail Panel */}
         {selectedRowIndex >= 0 && filteredTestcases[selectedRowIndex] &&
           filteredTestcases[selectedRowIndex].id !== closedPanelForId && (
-            <DetailPanel
-              testcase={filteredTestcases[selectedRowIndex]}
-              onClose={() => setClosedPanelForId(filteredTestcases[selectedRowIndex].id)}
-              onOpenDocument={handleOpenDocument}
-            />
+            <>
+              <div
+                className={`panel-resizer${isPanelResizing ? ' resizing' : ''}`}
+                role="separator"
+                aria-orientation="vertical"
+                aria-label="Resize detail panel"
+                title="Drag to resize. Double-click to reset."
+                tabIndex={0}
+                onPointerDown={startPanelResize}
+                onDoubleClick={resetPanelWidth}
+                onKeyDown={handlePanelResizeKeyDown}
+              />
+              <DetailPanel
+                testcase={filteredTestcases[selectedRowIndex]}
+                onClose={() => setClosedPanelForId(filteredTestcases[selectedRowIndex].id)}
+                onOpenDocument={handleOpenDocument}
+                width={detailPanelWidth}
+              />
+            </>
           )}
       </div>
 
