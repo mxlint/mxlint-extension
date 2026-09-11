@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
+import { useClickOutside } from '@/hooks/useClickOutside';
 
 interface MultiSelectProps {
   label: string;
@@ -11,14 +12,8 @@ export const MultiSelect: React.FC<MultiSelectProps> = React.memo(({ label, opti
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleClick = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setIsOpen(false);
-    };
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, [isOpen]);
+  const handleClose = useCallback(() => setIsOpen(false), []);
+  useClickOutside(ref, handleClose, isOpen);
 
   const toggle = useCallback((opt: string) => {
     onChange(selected.includes(opt) ? selected.filter(s => s !== opt) : [...selected, opt]);

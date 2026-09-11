@@ -1,33 +1,44 @@
 import { useEffect, type RefObject } from 'react';
 
 /**
- * Hook to detect clicks outside of a referenced element
- * @param ref - React ref to the element to monitor
- * @param handler - Callback function when click outside is detected
- * @param enabled - Whether the hook is active (default: true)
+ * Call `handler` when a completed click starts and ends outside `ref`.
+ *
+ * Using `mousedown` alone would close a popup as soon as the pointer left it,
+ * including when a selection started inside and was released outside.
  */
 export function useClickOutside<T extends HTMLElement>(
   ref: RefObject<T | null>,
-  handler: (event: MouseEvent | TouchEvent) => void,
+  handler: (event: MouseEvent | PointerEvent) => void,
   enabled: boolean = true
 ): void {
   useEffect(() => {
     if (!enabled) return;
 
-    const listener = (event: MouseEvent | TouchEvent) => {
+    let startedOutside = false;
+
+    const isOutside = (event: Event) => {
       const el = ref.current;
-      if (!el || el.contains(event.target as Node)) {
-        return;
-      }
-      handler(event);
+      const target = event.target as Node | null;
+      return !!el && !!target && !el.contains(target);
     };
 
-    document.addEventListener('mousedown', listener);
-    document.addEventListener('touchstart', listener);
+    const onPointerDown = (event: PointerEvent) => {
+      startedOutside = isOutside(event);
+    };
+
+    const onClick = (event: MouseEvent) => {
+      if (startedOutside && isOutside(event)) {
+        handler(event);
+      }
+      startedOutside = false;
+    };
+
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('click', onClick);
 
     return () => {
-      document.removeEventListener('mousedown', listener);
-      document.removeEventListener('touchstart', listener);
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('click', onClick);
     };
   }, [ref, handler, enabled]);
 }
