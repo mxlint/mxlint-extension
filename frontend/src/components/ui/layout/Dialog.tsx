@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import { useOverlayDismiss } from '@/hooks/useOverlayDismiss';
 import type { Size, BaseProps } from '@/types/ui.types';
 
 export interface DialogProps extends BaseProps {
@@ -45,11 +46,7 @@ export const Dialog: React.FC<DialogProps> = React.memo(({
     }
   }, [closeOnEscape, onClose]);
 
-  const handleOverlayClick = useCallback((e: React.MouseEvent) => {
-    if (closeOnOverlayClick && e.target === e.currentTarget) {
-      onClose();
-    }
-  }, [closeOnOverlayClick, onClose]);
+  const overlayDismiss = useOverlayDismiss(onClose, closeOnOverlayClick);
 
   // Focus management
   useEffect(() => {
@@ -91,7 +88,9 @@ export const Dialog: React.FC<DialogProps> = React.memo(({
   return createPortal(
     <div
       className="ui-dialog-overlay"
-      onClick={handleOverlayClick}
+      onPointerDown={overlayDismiss.onPointerDown}
+      onPointerUp={overlayDismiss.onPointerUp}
+      onClick={overlayDismiss.onClick}
       role="presentation"
     >
       <div
