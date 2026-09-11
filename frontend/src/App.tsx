@@ -17,7 +17,7 @@ import type {
 } from '@/types';
 
 // Constants
-import { ROW_HEIGHT, FILTER_PRESETS } from '@/constants';
+import { ROW_HEIGHT, FILTER_PRESETS, DEFAULT_SKIP_REASON } from '@/constants';
 import type { FilterPreset } from '@/constants';
 
 // Hooks
@@ -143,7 +143,7 @@ const App: React.FC = () => {
   const [configLoading, setConfigLoading] = useState(false);
   const [configSaving, setConfigSaving] = useState(false);
   const [showNoqaReasonModal, setShowNoqaReasonModal] = useState(false);
-  const [noqaReasonInput, setNoqaReasonInput] = useState('Skipped from MxLint extension');
+  const [noqaReasonInput, setNoqaReasonInput] = useState('');
   const [pendingNoqaAddEntries, setPendingNoqaAddEntries] = useState<NoqaEntryDraft[]>([]);
   const [pendingNoqaRemoveEntries, setPendingNoqaRemoveEntries] = useState<NoqaEntryDraft[]>([]);
   const [closedPanelForId, setClosedPanelForId] = useState<string | null>(null);
@@ -684,24 +684,20 @@ const App: React.FC = () => {
     setShowNoqaReasonModal(false);
     setPendingNoqaAddEntries([]);
     setPendingNoqaRemoveEntries([]);
-    setNoqaReasonInput('Skipped from MxLint extension');
+    setNoqaReasonInput('');
   }, []);
 
   const confirmNoqaReasonModal = useCallback(() => {
-    const reason = noqaReasonInput.trim();
-    if (!reason) {
-      toastError('Reason is required to skip selected rules.');
-      return;
-    }
+    const reason = noqaReasonInput.trim() || DEFAULT_SKIP_REASON;
 
     const addEntries = pendingNoqaAddEntries;
     const removeEntries = pendingNoqaRemoveEntries;
     setShowNoqaReasonModal(false);
     setPendingNoqaAddEntries([]);
     setPendingNoqaRemoveEntries([]);
-    setNoqaReasonInput('Skipped from MxLint extension');
+    setNoqaReasonInput('');
     void applyNoqaChanges(addEntries, removeEntries, reason);
-  }, [applyNoqaChanges, noqaReasonInput, pendingNoqaAddEntries, pendingNoqaRemoveEntries, toastError]);
+  }, [applyNoqaChanges, noqaReasonInput, pendingNoqaAddEntries, pendingNoqaRemoveEntries]);
 
   const handleNoqaSelected = useCallback(async () => {
     const addEntriesMap = new Map<string, Set<string>>();
@@ -745,7 +741,7 @@ const App: React.FC = () => {
     if (addEntries.length > 0) {
       setPendingNoqaAddEntries(addEntries);
       setPendingNoqaRemoveEntries(removeEntries);
-      setNoqaReasonInput('Skipped from MxLint extension');
+      setNoqaReasonInput('');
       setShowNoqaReasonModal(true);
       return;
     }
@@ -1589,7 +1585,7 @@ const App: React.FC = () => {
           value={noqaReasonInput}
           onChange={e => setNoqaReasonInput(e.target.value)}
           spellCheck={false}
-          placeholder="Enter skip reason"
+          placeholder={DEFAULT_SKIP_REASON}
           autoFocus
         />
         <div className="noqa-modal-actions">
