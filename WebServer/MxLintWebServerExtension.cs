@@ -149,10 +149,27 @@ public class MxLintWebServerExtension : WebServerExtension
         }
 
         var jsonPath = Path.Combine(CurrentApp.Root.DirectoryPath, ".mendix-cache", "lint-results.json");
-        var data = await File.ReadAllTextAsync(jsonPath, ct);
-        var jsonStream = new MemoryStream();
-        jsonStream.Write(Encoding.UTF8.GetBytes(data));
-        response.SendJsonAndClose(jsonStream);
+
+        if (!File.Exists(jsonPath)) 
+        { 
+            _logService.Debug($"Lint results not found at: {jsonPath}"); 
+            response.SendNoBodyAndClose(404); 
+            return; 
+        }
+
+        try
+        {
+            var data = await File.ReadAllTextAsync(jsonPath, ct);
+            var jsonStream = new MemoryStream();
+            jsonStream.Write(Encoding.UTF8.GetBytes(data));
+            response.SendJsonAndClose(jsonStream);
+        }
+        catch (FileNotFoundException)
+        {
+            _logService.Debug($"Lint results not found at: {jsonPath}");
+            response.SendNoBodyAndClose(404);
+            return;
+        }
     }
 
     private Task ServeVersion(HttpListenerRequest request, HttpListenerResponse response, CancellationToken ct)

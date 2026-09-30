@@ -400,6 +400,7 @@ public class MxLint
 
         var cliBaseUrl = $"https://github.com/mxlint/mxlint-cli/releases/download/{cliVersion}/";
         using var client = new HttpClient();
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("MxLintExtension/1.0");
         var downloadUrl = $"{cliBaseUrl}{cliAssetName}";
         LogInfo($"CLI not found. Downloading CLI from {downloadUrl}");
         var response = await client.GetAsync(downloadUrl);
@@ -433,8 +434,9 @@ public class MxLint
 
     private async Task<List<GitHubRelease>> GetGithubReleaseList()
     {
-        string apiUrl = $"https://github.com/repos/mxlint/mxling-cli/releases";
+        string apiUrl = $"https://api.github.com/repos/mxlint/mxlint-cli/releases";
         using var client = new HttpClient();
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("MxLintExtension/1.0");
         var response = await client.GetAsync(apiUrl);
         response.EnsureSuccessStatusCode();
         await using var stream = await response.Content.ReadAsStreamAsync();
