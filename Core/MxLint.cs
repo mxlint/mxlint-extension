@@ -1,11 +1,13 @@
+using Mendix.StudioPro.ExtensionsAPI.Model;
+using Mendix.StudioPro.ExtensionsAPI.Services;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
-using Mendix.StudioPro.ExtensionsAPI.Model;
-using Mendix.StudioPro.ExtensionsAPI.Services;
 
 namespace com.cinaq.MxLintExtension.Core;
 
@@ -398,6 +400,7 @@ public class MxLint
 
         var cliBaseUrl = $"https://github.com/mxlint/mxlint-cli/releases/download/{cliVersion}/";
         using var client = new HttpClient();
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("MxLintExtension/1.0");
         var downloadUrl = $"{cliBaseUrl}{cliAssetName}";
         LogInfo($"CLI not found. Downloading CLI from {downloadUrl}");
         var response = await client.GetAsync(downloadUrl);
@@ -414,9 +417,43 @@ public class MxLint
     {
         var config = await ReadConfig();
         var cliVersion = ResolveCliVersion(config.Cli?.Version);
+        if (cliVersion == "latest")
+        {
+            cliVersion = await GetLatestGithubRelease();
+        }
         LogDebug($"Resolved CLI version from config: raw='{config.Cli?.Version ?? "<null>"}', effective='{cliVersion}'");
         return cliVersion;
     }
+
+    private async Task<string> GetLatestGithubRelease()
+    {
+        var releases = await GetGithubReleaseList();
+        releases.Sort((a, b) => Compare(b.TagName, a.TagName));
+        return releases[0].TagName;
+    }
+
+    private async Task<List<GitHubRelease>> GetGithubReleaseList()
+    {
+        string apiUrl = $"https://api.github.com/repos/mxlint/mxlint-cli/releases";
+        using var client = new HttpClient();
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("MxLintExtension/1.0");
+        var response = await client.GetAsync(apiUrl);
+        response.EnsureSuccessStatusCode();
+        await using var stream = await response.Content.ReadAsStreamAsync();
+        List<GitHubRelease>? releases = await JsonSerializer.DeserializeAsync<List<GitHubRelease>>(stream);
+        if (releases == null)
+        {
+            throw new InsufficientExecutionStackException("Unable to parse Github releases.");
+        }
+        return releases;
+    }
+
+    public static int Compare(string a, string b) => Parse(a).CompareTo(Parse(b));
+
+    public static Version Parse(string value) =>
+        Version.TryParse(value?.Trim().TrimStart('v', 'V'), out var v)
+            ? v
+            : new Version(0, 0, 0);
 
     internal static string ResolveCliVersion(string? configuredVersion)
     {
@@ -726,4 +763,10 @@ public sealed class MxLintConfigSkipRule
     public string Rule { get; set; } = string.Empty;
     public string Reason { get; set; } = string.Empty;
     public string Date { get; set; } = string.Empty;
+}
+
+public sealed class GitHubRelease
+{
+    [JsonPropertyName("tag_name")]
+    public string TagName { get; set; } = string.Empty;
 }
